@@ -1,6 +1,7 @@
 const Share = require("../models/shareModel");
+const catchAsync = require("../utils/catchAsync");
 
-exports.createShare = async (req, res) => {
+exports.createShare = catchAsync(async (req, res) => {
   const share = await Share.create(req.body);
 
   res.status(200).json({
@@ -9,7 +10,7 @@ exports.createShare = async (req, res) => {
       share,
     },
   });
-};
+});
 
 exports.getAllShares = async (req, res) => {
   let filter = {};
