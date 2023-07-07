@@ -6,19 +6,28 @@ const shareSchema = new mongoose.Schema({
     type: String,
     required: [true, "A url must be provided"],
     lowercase: true,
-  },
-  shareType: {
-    type: String,
-    set: function () {
-      return this.shareUrl.includes("spotify") ? "Spotify" : "Soundcloud";
+    validate: {
+      validator: (value) =>
+        validator.isURL(value, {
+          protocols: ["http", "https"],
+          require_tld: true,
+          require_protocol: true,
+        }),
+      message: "Must be a Valid URL",
     },
   },
+  shareType: String,
   createdAt: {
     type: Date,
     default: Date.now(),
   },
 });
 
-const Share = mongoose.model("User", shareSchema);
+shareSchema.pre("save", function (next) {
+  this.shareType = this.shareUrl.includes("spotify") ? "Spotify" : "Soundcloud";
+  next();
+});
+
+const Share = mongoose.model("Share", shareSchema);
 
 module.exports = Share;
