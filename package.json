@@ -4,7 +4,8 @@
   "description": "social network for sharing music, found on different platforms",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon server.js",
+    "start:prod": "NODE_ENV=production nodemon server.js"
   },
   "author": "Leon Lubberdink",
   "license": "ISC",
