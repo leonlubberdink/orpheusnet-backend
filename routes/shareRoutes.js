@@ -10,5 +10,10 @@ router
   .post(shareController.createShare);
 
 // Routes for finding, patching or deleting one share based on an id
+router
+  .route("/:id")
+  .get(shareController.getOneShare)
+  .patch(shareController.updateShare)
+  .delete(shareController.deleteShare);
 
 module.exports = router;
