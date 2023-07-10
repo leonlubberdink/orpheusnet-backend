@@ -11,10 +11,16 @@ const groupSchema = new mongoose.Schema({
     trim: true,
     lowercase: true,
   },
-  userImage: {
+  groupImage: {
     type: String,
     default: 'default.jpg',
   },
+  members: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
 });
 
 const Group = mongoose.model('Group', groupSchema);

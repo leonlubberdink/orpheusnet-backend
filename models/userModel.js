@@ -15,13 +15,10 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: [true, 'An email address must be provided'],
-    unique: [
-      true,
-      'Email address already in use, please use a different email address',
-    ],
+    unique: [true, 'Email already in use, please choose a different username'],
     trim: true,
     lowercase: true,
-    validate: [validator.isEmail, 'Please use a valid email address'],
+    validate: [validator.isEmail, 'Please provide a valid email address'],
   },
   userImage: {
     type: String,
@@ -54,6 +51,12 @@ const userSchema = new mongoose.Schema({
     default: true,
     select: false,
   },
+  groups: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Group',
+    },
+  ],
 });
 
 const User = mongoose.model('User', userSchema);
