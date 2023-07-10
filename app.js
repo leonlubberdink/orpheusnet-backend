@@ -25,6 +25,10 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+if (process.env.NODE_ENV === 'production') {
+  console.log('PRODUCTION ENVIRONMENT');
+}
+
 // Parse incoming requests with JSON payloads (body-parser)
 app.use(express.json({ limit: '10kb' }));
 
