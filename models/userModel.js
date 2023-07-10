@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { default: validator } = require('validator');
+const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
   userName: {
@@ -26,7 +27,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['user', 'group-admin', 'admin'],
+    enum: ['user', 'admin'],
     default: 'user',
   },
   password: {
@@ -42,6 +43,7 @@ const userSchema = new mongoose.Schema({
       return val === this.password;
     },
     message: 'Please use the same password',
+    select: false,
   },
   passwordChangedAt: Date,
   passwordResetToken: String,
@@ -57,6 +59,15 @@ const userSchema = new mongoose.Schema({
       ref: 'Group',
     },
   ],
+});
+
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
+
+  this.password = await bcrypt.hash(this.password, 12);
+
+  this.passwordConfirm = undefined;
+  next();
 });
 
 const User = mongoose.model('User', userSchema);
