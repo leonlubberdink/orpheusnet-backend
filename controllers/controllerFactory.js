@@ -1,4 +1,24 @@
 const catchAsync = require("../utils/catchAsync");
+const QueryBuilder = require("../utils/queryBuilder");
+
+exports.getAll = (Model) =>
+  catchAsync(async (req, res) => {
+    let query = new QueryBuilder(Model.find({}), req.query)
+      .filter()
+      .sort()
+      .projectFields()
+      .paginate();
+
+    const docs = await query.constructedQuery;
+
+    res.status(200).json({
+      status: "succes",
+      results: docs.length,
+      data: {
+        docs,
+      },
+    });
+  });
 
 exports.createOne = (Model) =>
   catchAsync(async (req, res, next) => {
@@ -8,21 +28,6 @@ exports.createOne = (Model) =>
       status: "success",
       data: {
         data: doc,
-      },
-    });
-  });
-
-exports.getAll = (Model) =>
-  catchAsync(async (req, res) => {
-    let filter = {};
-
-    const docs = await Model.find(filter);
-
-    res.status(200).json({
-      status: "succes",
-      results: docs.length,
-      data: {
-        docs,
       },
     });
   });
