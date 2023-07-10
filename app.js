@@ -12,7 +12,7 @@ const morgan = require("morgan");
 //Start express app
 const app = express();
 
-// 1 GLOBAL MIDDLEWARES
+// 1 MIDDLEWARES
 
 // Serving static files
 app.use(express.static(path.join(__dirname, "public")));
@@ -29,5 +29,12 @@ app.use(express.json({ limit: "10kb" }));
 // 2 ROUTES
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/shares", shareRouter);
+
+app.all("*", (req, res, next) => {
+  res.status(404).json({
+    status: "fail",
+    message: `Can't find ${req.originalUrl} on this server`,
+  });
+});
 
 module.exports = app;
