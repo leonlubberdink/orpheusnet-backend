@@ -1,19 +1,19 @@
-const mongoose = require("mongoose");
-const { default: validator } = require("validator");
+const mongoose = require('mongoose');
+const { default: validator } = require('validator');
 
 const shareSchema = new mongoose.Schema({
   shareUrl: {
     type: String,
-    required: [true, "A url must be provided"],
+    required: [true, 'A url must be provided'],
     lowercase: true,
     validate: {
       validator: (value) =>
         validator.isURL(value, {
-          protocols: ["http", "https"],
+          protocols: ['http', 'https'],
           require_tld: true,
           require_protocol: true,
         }),
-      message: "Must be a Valid URL",
+      message: 'Must be a Valid URL',
     },
   },
   shareType: String,
@@ -23,11 +23,11 @@ const shareSchema = new mongoose.Schema({
   },
 });
 
-shareSchema.pre("save", function (next) {
-  this.shareType = this.shareUrl.includes("spotify") ? "Spotify" : "Soundcloud";
+shareSchema.pre('save', function (next) {
+  this.shareType = this.shareUrl.includes('spotify') ? 'Spotify' : 'Soundcloud';
   next();
 });
 
-const Share = mongoose.model("Share", shareSchema);
+const Share = mongoose.model('Share', shareSchema);
 
 module.exports = Share;

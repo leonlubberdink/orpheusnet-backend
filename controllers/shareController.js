@@ -1,5 +1,5 @@
-const Share = require("../models/shareModel");
-const factory = require("./controllerFactory");
+const Share = require('../models/shareModel');
+const factory = require('./controllerFactory');
 
 exports.createShare = factory.createOne(Share);
 exports.getAllShares = factory.getAll(Share);

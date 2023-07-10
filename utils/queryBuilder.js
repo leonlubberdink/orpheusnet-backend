@@ -1,4 +1,4 @@
-const _ = require("lodash");
+const _ = require('lodash');
 
 const QueryBuilder = function (constructedQuery, requestedQuery) {
   this.constructedQuery = constructedQuery;
@@ -8,7 +8,7 @@ const QueryBuilder = function (constructedQuery, requestedQuery) {
 // 1) FILTER
 // Filter function that returns the modified query object and requested querystring
 QueryBuilder.prototype.filter = function () {
-  const excludedFields = ["page", "sort", "limit", "fields"];
+  const excludedFields = ['page', 'sort', 'limit', 'fields'];
 
   // Create query clone without excluded fields
   const queryObj = _.cloneDeep(_.omit(this.requestedQuery, excludedFields));
@@ -29,10 +29,10 @@ QueryBuilder.prototype.filter = function () {
 // Filter function that returns the modified query object and requested querystring
 QueryBuilder.prototype.sort = function () {
   if (this.requestedQuery.sort) {
-    const sortCriteria = this.requestedQuery.sort.split(",").join(" ");
+    const sortCriteria = this.requestedQuery.sort.split(',').join(' ');
     this.constructedQuery = this.constructedQuery.sort(sortCriteria);
   } else {
-    this.constructedQuery = this.constructedQuery.sort("-createdAt");
+    this.constructedQuery = this.constructedQuery.sort('-createdAt');
   }
 
   // Return both the filtered query and the requested query for further processing
@@ -40,10 +40,10 @@ QueryBuilder.prototype.sort = function () {
 };
 
 QueryBuilder.prototype.projectFields = function () {
-  this.constructedQuery.select("-__v");
+  this.constructedQuery.select('-__v');
 
   if (this.requestedQuery.fields) {
-    const fields = this.requestedQuery.fields.split(",").join(" ");
+    const fields = this.requestedQuery.fields.split(',').join(' ');
     this.constructedQuery = this.constructedQuery.select(fields);
   }
 

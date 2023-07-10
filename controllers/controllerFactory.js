@@ -1,5 +1,5 @@
-const catchAsync = require("../utils/catchAsync");
-const QueryBuilder = require("../utils/queryBuilder");
+const catchAsync = require('../utils/catchAsync');
+const QueryBuilder = require('../utils/queryBuilder');
 
 exports.getAll = (Model) =>
   catchAsync(async (req, res) => {
@@ -12,7 +12,7 @@ exports.getAll = (Model) =>
     const docs = await query.constructedQuery;
 
     res.status(200).json({
-      status: "succes",
+      status: 'succes',
       results: docs.length,
       data: {
         docs,
@@ -25,7 +25,7 @@ exports.createOne = (Model) =>
     const doc = await Model.create(req.body);
 
     res.status(200).json({
-      status: "success",
+      status: 'success',
       data: {
         data: doc,
       },
@@ -37,7 +37,7 @@ exports.getOne = (Model) =>
     const doc = await Model.findById(req.params.id);
 
     res.status(200).json({
-      status: "succes",
+      status: 'succes',
       data: {
         doc,
       },
@@ -52,7 +52,7 @@ exports.updateOne = (Model) =>
     });
 
     res.status(200).json({
-      status: "succes",
+      status: 'succes',
       data: {
         doc,
       },
@@ -64,7 +64,7 @@ exports.deleteOne = (Model) =>
     await Model.findByIdAndDelete(req.params.id);
 
     res.status(204).json({
-      status: "success",
+      status: 'success',
       data: null,
     });
   });

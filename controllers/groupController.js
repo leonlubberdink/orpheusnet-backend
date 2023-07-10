@@ -1,5 +1,5 @@
-const Group = require("../models/groupModel");
-const factory = require("./controllerFactory");
+const Group = require('../models/groupModel');
+const factory = require('./controllerFactory');
 
 exports.createUser = factory.createOne(User);
 exports.getAllUsers = factory.getAll(User);
