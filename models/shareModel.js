@@ -15,6 +15,12 @@ const shareSchema = new mongoose.Schema({
         }),
       message: 'Must be a Valid URL',
     },
+    validate: {
+      validator: (val) => {
+        return val.includes('spotify') || val.includes('soundcloud');
+      },
+      message: 'Url must be a soundcloud or spotify url',
+    },
   },
   shareType: String,
   createdAt: {
