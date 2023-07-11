@@ -16,18 +16,23 @@ const app = express();
 
 // 1 MIDDLEWARES
 
-// Serving static files
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Morgan Middleware for development. Logging request info to console.
+// MIDDLEWARE FOR DEVELOPMEN ENV
 if (process.env.NODE_ENV === 'development') {
   console.log('DEVELOPMENT ENVIRONMENT');
+
+  // Morgan Middleware for logging request info to console.
   app.use(morgan('dev'));
+
+  // // Custom, Middleware for testing purposes
+  // app.use((req, res, next) => {
+  //   console.log(req.headers);
+  //   next();
+  // });
 }
 
-if (process.env.NODE_ENV === 'production') {
-  console.log('PRODUCTION ENVIRONMENT');
-}
+// MIDDLEWARES FOR PRODFUCTION ENV
+// Serving static files
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Parse incoming requests with JSON payloads (body-parser)
 app.use(express.json({ limit: '10kb' }));

@@ -22,6 +22,18 @@ const handleDuplicatedFieldsDB = (err) => {
   return new AppError(message, 400);
 };
 
+const handleJWTError = () => {
+  const message = `Ivalid token, please login again`;
+  return new AppError(message, 401);
+};
+
+const handleJWTExpiredError = () => {
+  const message = `Your token has expired`;
+  return new AppError(message, 401);
+};
+
+////////////////////////////////////////////////////////////
+
 // Function that gets triggered on error in development
 const sendErrDev = (err, res) => {
   res.status(err.statusCode).json({
@@ -62,6 +74,8 @@ module.exports = (err, req, res, next) => {
     if (error.name === 'ValidationError')
       error = handleValidationErrorDB(error);
     if (error.code === 11000) error = handleDuplicatedFieldsDB(error);
+    if (error.name === 'JsonWebTokenError') error = handleJWTError();
+    if (error.name === 'TokenExpiredError') error = handleJWTExpiredError();
 
     sendErrProd(error, res);
   }
