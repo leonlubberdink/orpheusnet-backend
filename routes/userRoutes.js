@@ -7,6 +7,9 @@ const router = express.Router();
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
 
+//Restrict non auth user routes to admin
+router.use(authController.protect, authController.restrictTo('admin'));
+
 router
   .route('/')
   .get(userController.getAllUsers)

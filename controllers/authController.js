@@ -18,7 +18,6 @@ exports.signup = catchAsync(async (req, res, next) => {
     userImage: req.body.userImage,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
-    passwordChangedAt: req.body.passwordChangedAt,
   });
 
   const token = signToken(newUser._id);
@@ -72,22 +71,33 @@ exports.protect = catchAsync(async (req, res, next) => {
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
   // 3) Check if user still exists
-  const freshUser = await User.findById(decoded.id);
+  const currentUser = await User.findById(decoded.id);
 
-  if (!freshUser)
+  if (!currentUser)
     return next(
       new AppError('The user belonging to the token no longer exists.', 401)
     );
 
   // 4) Check if user changed password after the token was issued
-  if (freshUser.hasPasswordChangedAfter(decoded.iat))
+  if (currentUser.hasPasswordChangedAfter(decoded.iat))
     return next(
       new AppError('User recently changed password! Please log in again', 401)
     );
 
   // Add current user to request, is usefull for further access control
-  req.user = freshUser;
+  req.user = currentUser;
 
   //GRANT ACCESS TO PROTECTED ROUTE
   next();
 });
+
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('You do not have persmission to perform this action.', 403)
+      );
+    }
+    next();
+  };
+};

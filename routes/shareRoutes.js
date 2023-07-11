@@ -4,10 +4,13 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
+//Restrict non auth user routes to admin
+router.use(authController.protect);
+
 // Routes for creating a new share and requesting all shares with filter
 router
   .route('/')
-  .get(authController.protect, shareController.getAllShares)
+  .get(shareController.getAllShares)
   .post(shareController.createShare);
 
 // Routes for finding, patching or deleting one share based on an id
