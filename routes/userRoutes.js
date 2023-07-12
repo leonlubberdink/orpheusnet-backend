@@ -16,6 +16,8 @@ router.patch(
   authController.updateMyPassword
 );
 
+router.patch('/updateMe', authController.protect, userController.updateMe);
+
 //Restrict non auth user routes to admin
 router.use(authController.protect, authController.restrictTo('admin'));
 
