@@ -71,6 +71,13 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.pre('save', async function (next) {
+  if (this.isModified('password') || this.isNew) return next();
+
+  this.passwordChangedAt = Date.now() - 1000;
+  next();
+});
+
 userSchema.methods.correctPassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
@@ -94,6 +101,11 @@ userSchema.methods.createPasswordResetToken = async function () {
 
   this.passwordResetExpires = Date.now() + 600000; //set to 600000ms = 10min
   return resetToken;
+};
+
+userSchema.methods.hasTokenExpired = function (user) {
+  if (this.passwordResetExpires < Date.now()) return true;
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);

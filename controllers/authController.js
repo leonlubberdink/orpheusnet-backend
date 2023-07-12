@@ -1,4 +1,5 @@
 const { promisify } = require('util');
+const crypto = require('crypto');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
@@ -37,13 +38,20 @@ exports.login = catchAsync(async (req, res, next) => {
 
   // 1) Check if email and password are sent
   if (!userName || !password)
-    return next(new AppError('Please provide email and password', 400));
+    return next(
+      new AppError('Please provide username or email and password', 400)
+    );
 
   // 2) Check if user exists && passord is correct
-  const user = await User.findOne({ userName }).select('+password');
+  let user = await User.findOne({ userName: req.body.userName }).select(
+    '+password'
+  );
+
+  if (!user)
+    user = await User.findOne({ email: req.body.userName }).select('+password');
 
   if (!user || !(await user.correctPassword(password))) {
-    return next(new AppError('Incorrect email or password!', 401));
+    return next(new AppError('Incorrect username/email or password!', 401));
   }
 
   // 3) If all is ok, send token to client
@@ -143,4 +151,39 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-exports.resetPassword = (req, res, next) => {};
+exports.resetPassword = catchAsync(async (req, res, next) => {
+  // 1) get User based on token
+  const hashedToken = crypto
+    .createHash('sha256')
+    .update(req.params.token)
+    .digest('hex');
+
+  // 2) If token has not expired and user exists, set new Password
+  const user = await User.findOne({ passwordResetToken: hashedToken });
+  if (!user) {
+    return next(new AppError('Invalid token!', 401));
+  }
+
+  if (user.hasTokenExpired()) {
+    return next(new AppError('Token has expired!', 401));
+  }
+
+  console.log(req.body.password);
+  console.log(req.body.passwordConfirm);
+
+  user.password = req.body.password;
+  user.passwordConfirm = req.body.passwordConfirm;
+  user.passwordResetToken = undefined;
+  user.passwordResetExpires = undefined;
+
+  await user.save();
+
+  // 3) Update changedPasswordAt property fo the user, in usermodel with presave hook
+  // 4) Login user and send JWT
+  const token = signToken(user._id);
+
+  res.status(200).json({
+    status: 'success',
+    token,
+  });
+});
