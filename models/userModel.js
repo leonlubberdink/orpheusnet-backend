@@ -78,6 +78,11 @@ userSchema.pre('save', async function (next) {
   next();
 });
 
+userSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
+  next();
+});
+
 userSchema.methods.correctPassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
@@ -103,7 +108,7 @@ userSchema.methods.createPasswordResetToken = async function () {
   return resetToken;
 };
 
-userSchema.methods.hasTokenExpired = function (user) {
+userSchema.methods.hasTokenExpired = function () {
   if (this.passwordResetExpires < Date.now()) return true;
   return false;
 };

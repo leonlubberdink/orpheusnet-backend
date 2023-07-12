@@ -55,3 +55,13 @@ exports.updateMe = catchAsync(async (req, res, next) => {
     user,
   });
 });
+
+// DELETE One user based on Id, on user request
+exports.deleteMe = catchAsync(async (req, res) => {
+  await User.findByIdAndUpdate(req.user.id, { active: false });
+
+  res.status(204).json({
+    status: 'success',
+    data: null,
+  });
+});
