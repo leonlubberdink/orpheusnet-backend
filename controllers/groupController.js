@@ -4,7 +4,7 @@ const catchAsync = require('../utils/catchAsync');
 
 exports.updateGroup = factory.updateOne(Group);
 exports.deleteGroup = factory.deleteOne(Group);
-exports.getOneGroup = factory.getOne(Group);
+exports.getOneGroup = factory.getOne(Group, 'shares');
 
 exports.getAllGroups = factory.getAll(Group, {
   path: 'groupAdmins members',

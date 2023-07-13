@@ -23,4 +23,6 @@ router
 //Restrict non "auth user" routes to admin (LATER)
 router.route('/').get(authController.protect, groupController.getAllGroups);
 
+router.route('/:id').get(authController.protect, groupController.getOneGroup);
+
 module.exports = router;
