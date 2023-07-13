@@ -13,7 +13,7 @@ router.use(authController.protect);
 // Route for getting all groups where user is a member from
 router
   .route('/')
-  .get(authController.restrictTo('user'), groupController.getMyGroups);
+  .get(authController.restrictTo('user'), groupController.getUsersGroups);
 
 // Route for starting a new group
 router

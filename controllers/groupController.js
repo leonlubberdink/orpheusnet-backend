@@ -31,17 +31,16 @@ exports.startNewGroup = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getMyGroups = catchAsync(async (req, res, next) => {
-  console.log('Get my groups');
+exports.getUsersGroups = catchAsync(async (req, res, next) => {
   let filter = {};
-  if (req.params.userId) filter = { members: req.params.groupId };
+  if (req.params.userId) filter = { members: req.params.userId };
 
-  const shares = await Group.find(filter);
+  const groups = await Group.find(filter).select('groupName groupImage');
 
   res.status(201).json({
     status: 'success',
-    // data: {
-    //   data: newDoc,
-    // },
+    data: {
+      data: groups,
+    },
   });
 });
