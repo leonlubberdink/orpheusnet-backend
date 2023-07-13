@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const groupSchema = new mongoose.Schema({
-  groupeName: {
+  groupName: {
     type: String,
     required: [true, 'A group name must be provided'],
     unique: [
@@ -15,7 +15,10 @@ const groupSchema = new mongoose.Schema({
     type: String,
     default: 'default.jpg',
   },
-  groupAdmin: String,
+  groupAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
   members: [
     {
       type: mongoose.Schema.Types.ObjectId,

@@ -38,10 +38,22 @@ const shareSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
+  group: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  },
 });
 
 shareSchema.pre('save', function (next) {
-  this.shareType = this.shareUrl.includes('spotify') ? 'Spotify' : 'Soundcloud';
+  if (this.isNew) {
+    this.shareType = this.shareUrl.includes('spotify')
+      ? 'Spotify'
+      : 'Soundcloud';
+  }
   next();
 });
 

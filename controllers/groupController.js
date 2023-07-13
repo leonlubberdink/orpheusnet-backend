@@ -1,8 +1,34 @@
 const Group = require('../models/groupModel');
 const factory = require('./controllerFactory');
+const catchAsync = require('../utils/catchAsync');
 
-exports.createUser = factory.createOne(User);
-exports.getAllUsers = factory.getAll(User);
-exports.getOneUser = factory.getOne(User);
-exports.updateUser = factory.updateOne(User);
-exports.deleteUser = factory.deleteOne(User);
+exports.getAllGroups = factory.getAll(Group);
+exports.getOneGroup = factory.getOne(Group);
+exports.updateGroup = factory.updateOne(Group);
+exports.deleteGroup = factory.deleteOne(Group);
+
+exports.startNewGroup = catchAsync(async (req, res, next) => {
+  req.body.groupAdmin = req.user.id;
+  req.body.members = [req.user.id];
+
+  const newGroup = await Group.create(req.body);
+
+  res.status(201).json({
+    status: 'success',
+    data: {
+      data: newGroup,
+    },
+  });
+});
+
+exports.getMyGroups = catchAsync(async (req, res, next) => {
+  console.log(req.user);
+  //   const newGroup = await Group.create(req.body);
+
+  res.status(201).json({
+    status: 'success',
+    // data: {
+    //   data: newDoc,
+    // },
+  });
+});
