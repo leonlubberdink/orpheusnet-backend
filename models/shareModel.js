@@ -45,7 +45,6 @@ const shareSchema = new mongoose.Schema({
   group: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Group',
-    required: [true, 'Share must belong to a group'],
   },
 });
 
