@@ -1,23 +1,19 @@
 const Share = require('../models/shareModel');
 const factory = require('./controllerFactory');
 const catchAsync = require('../utils/catchAsync');
-const { filter } = require('lodash');
 
-exports.createShare = factory.createOne(Share);
-exports.getOneShare = factory.getOne(Share);
-exports.updateShare = factory.updateOne(Share);
-exports.deleteShare = factory.deleteOne(Share);
-
-exports.getAllShares = factory.getAll(Share, {
+const popOptions = {
   path: 'group user',
   select: 'groupName groupImage userName userImage',
-});
+};
+
+exports.deleteShare = factory.deleteOne(Share);
 
 exports.getAllSharesInGroup = catchAsync(async (req, res, next) => {
   let filter = {};
   if (req.params.groupId) filter = { group: req.params.groupId };
 
-  const shares = await Share.find(filter);
+  const shares = await Share.find(filter).populate(popOptions);
 
   res.status(201).json({
     status: 'success',
@@ -28,7 +24,7 @@ exports.getAllSharesInGroup = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.shareMusicInGroup = catchAsync(async (req, res, next) => {
+exports.createShare = catchAsync(async (req, res, next) => {
   const newShare = await Share.create(req.body);
 
   res.status(201).json({
@@ -38,6 +34,7 @@ exports.shareMusicInGroup = catchAsync(async (req, res, next) => {
     },
   });
 });
+
 exports.setGroupUserIds = (req, res, next) => {
   // Get params from nested routes
   if (!req.body.group) req.body.group = req.params.groupId;

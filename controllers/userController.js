@@ -3,16 +3,18 @@ const factory = require('./controllerFactory');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
-//////////////////////////////////
-//Admin controllers
+const popOptions = {
+  path: 'groups',
+  select: 'groupName',
+};
+
 exports.createUser = factory.createOne(User);
-exports.getAllUsers = factory.getAll(User);
-exports.getOneUser = factory.getOne(User);
+exports.getAllUsers = factory.getAll(User, popOptions);
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);
 
-//////////////////////////////////
-// Helper functions
+exports.getOneUser = factory.getOne(User, popOptions);
+
 const filterRequest = (obj, ...allowedFields) => {
   const returnObj = {};
 
@@ -23,9 +25,6 @@ const filterRequest = (obj, ...allowedFields) => {
   });
   return returnObj;
 };
-
-//////////////////////////////////
-// User controllers (loged in users)
 
 // GEt info currently logged in user
 exports.getMe = (req, res, next) => {
