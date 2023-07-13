@@ -15,6 +15,8 @@ router
   .post(shareController.setGroupUserIds, shareController.createShare);
 
 // Route for deleting a share, a user has created
-router.route('/:id').delete(shareController.deleteShare);
+router
+  .route('/:id')
+  .delete(shareController.checkIfOwner, shareController.deleteShare);
 
 module.exports = router;

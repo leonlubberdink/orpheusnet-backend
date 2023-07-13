@@ -1,11 +1,29 @@
 const Share = require('../models/shareModel');
 const factory = require('./controllerFactory');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 const popOptions = {
   path: 'group user',
   select: 'groupName groupImage userName userImage',
 };
+
+exports.checkIfOwner = catchAsync(async (req, res, next) => {
+  console.log(req.user.role);
+  console.log(req.params.id);
+
+  if (req.user.role !== 'admin') {
+    const share = await Share.findById(req.params.id).populate('user');
+    console.log(share.user.id);
+    console.log(req.user.id);
+    if (share.user.id !== req.user.id) {
+      return next(
+        new AppError('You are not allowed to remove a post from another user')
+      );
+    }
+  }
+  next();
+});
 
 exports.deleteShare = factory.deleteOne(Share);
 
