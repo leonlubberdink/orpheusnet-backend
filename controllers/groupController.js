@@ -2,11 +2,29 @@ const Group = require('../models/groupModel');
 const User = require('../models/userModel');
 const factory = require('./controllerFactory');
 const catchAsync = require('../utils/catchAsync');
+const AppError = require('../utils/appError');
 
 const popOptions = {
   path: 'groupAdmins members',
   select: 'userName userImage',
 };
+
+exports.checkIfGroupAdmin = catchAsync(async (req, res, next) => {
+  if (req.user.role !== 'admin') {
+    const group = await Group.findById(req.params.id).populate({
+      path: 'groupAdmins',
+      select: 'userName',
+    });
+    let isGroupAdmin = false;
+    group.groupAdmins.forEach((admin) => {
+      if (admin.userName === req.user.userName) isGroupAdmin = true;
+    });
+    if (!isGroupAdmin) {
+      return next(new AppError('Only Group Admins can remove groups', 403));
+    }
+  }
+  next();
+});
 
 exports.deleteGroup = factory.deleteOne(Group);
 exports.getAllGroups = factory.getAll(Group, popOptions);
