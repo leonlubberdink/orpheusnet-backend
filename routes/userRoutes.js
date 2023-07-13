@@ -7,29 +7,24 @@ const router = express.Router();
 
 router.use('/:userId/groups', groupRouter);
 
-router.get(
-  '/me',
-  authController.protect,
-  userController.getMe,
-  userController.getOneUser
-);
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
 
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 
-router.patch(
-  '/updateMyPassword',
-  authController.protect,
-  authController.updateMyPassword
-);
+//All routes below are protectet with JWT
+router.use(authController.protect);
 
-router.patch('/updateMe', authController.protect, userController.updateMe);
-router.delete('/deleteMe', authController.protect, userController.deleteMe);
+router.get('/me', userController.getMe, userController.getOneUser);
 
-//Restrict non auth user routes to admin
-router.use(authController.protect, authController.restrictTo('admin'));
+router.patch('/updateMyPassword', authController.updateMyPassword);
+
+router.patch('/updateMe', userController.updateMe);
+router.delete('/deleteMe', userController.deleteMe);
+
+//All routes below are restricted to Admin users
+router.use(authController.restrictTo('admin'));
 
 router
   .route('/')
