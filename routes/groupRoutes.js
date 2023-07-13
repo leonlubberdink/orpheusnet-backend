@@ -9,4 +9,6 @@ router
   .get(authController.protect, groupController.getMyGroups)
   .post(authController.protect, groupController.startNewGroup);
 
+router.route('/:id').get(groupController.getOneGroup);
+
 module.exports = router;

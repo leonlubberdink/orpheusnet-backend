@@ -15,16 +15,26 @@ const groupSchema = new mongoose.Schema({
     type: String,
     default: 'default.jpg',
   },
-  groupAdmin: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-  },
+  groupAdmins: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+    },
+  ],
   members: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     },
   ],
+});
+
+groupSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'groupAdmins members',
+    select: 'userName userImage',
+  });
+  next();
 });
 
 const Group = mongoose.model('Group', groupSchema);
