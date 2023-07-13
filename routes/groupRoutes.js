@@ -5,10 +5,22 @@ const authController = require('../controllers/authController');
 const router = express.Router();
 
 router
-  .route('/')
-  .get(authController.protect, groupController.getMyGroups)
-  .post(authController.protect, groupController.startNewGroup);
+  .route('/startNewGroup')
+  .post(
+    authController.protect,
+    authController.restrictTo('user'),
+    groupController.startNewGroup
+  );
 
-router.route('/:id').get(groupController.getOneGroup);
+router
+  .route('/getMyGroups')
+  .get(
+    authController.protect,
+    authController.restrictTo('user'),
+    groupController.getMyGroups
+  );
+
+//Restrict non "auth user" routes to admin (LATER)
+router.route('/').get(authController.protect, groupController.getAllGroups);
 
 module.exports = router;

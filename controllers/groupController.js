@@ -2,9 +2,14 @@ const Group = require('../models/groupModel');
 const factory = require('./controllerFactory');
 const catchAsync = require('../utils/catchAsync');
 
-exports.getAllGroups = factory.getAll(Group);
 exports.updateGroup = factory.updateOne(Group);
 exports.deleteGroup = factory.deleteOne(Group);
+exports.getOneGroup = factory.getOne(Group);
+
+exports.getAllGroups = factory.getAll(Group, {
+  path: 'groupAdmins members',
+  select: 'userName userImage',
+});
 
 exports.startNewGroup = catchAsync(async (req, res, next) => {
   req.body.groupAdmins = [req.user.id];
@@ -21,8 +26,6 @@ exports.startNewGroup = catchAsync(async (req, res, next) => {
     },
   });
 });
-
-exports.getOneGroup = factory.getOne(Group);
 
 exports.getMyGroups = catchAsync(async (req, res, next) => {
   console.log(req.user);

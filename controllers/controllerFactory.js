@@ -2,7 +2,7 @@ const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const QueryBuilder = require('../utils/queryBuilder');
 
-exports.getAll = (Model) =>
+exports.getAll = (Model, popOptions) =>
   catchAsync(async (req, res, next) => {
     let query = new QueryBuilder(Model.find({}), req.query)
       .filter()
@@ -10,7 +10,13 @@ exports.getAll = (Model) =>
       .projectFields()
       .paginate();
 
-    const docs = await query.constructedQuery;
+    if (popOptions) {
+      query = query.constructedQuery.populate(popOptions);
+    } else {
+      query = query.constructedQuery;
+    }
+
+    const docs = await query;
 
     res.status(200).json({
       status: 'succes',

@@ -38,13 +38,14 @@ const shareSchema = new mongoose.Schema({
     type: Date,
     default: Date.now(),
   },
-  creator: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
   group: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Group',
+    required: [true, 'Share must belong to a group'],
   },
 });
 

@@ -4,6 +4,12 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
+router.route('/postMusic').post(
+  authController.protect,
+  // authController.restrictTo('user'),
+  shareController.shareMusicInGroup
+);
+
 //Restrict non "auth user" routes to admin
 router.use(authController.protect, authController.restrictTo('admin'));
 
