@@ -27,6 +27,12 @@ const filterRequest = (obj, ...allowedFields) => {
 //////////////////////////////////
 // User controllers (loged in users)
 
+// GEt info currently logged in user
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next();
+};
+
 // PATCH One user based on Id, on user request
 exports.updateMe = catchAsync(async (req, res, next) => {
   // 1) Create error if user POSTs Password data
