@@ -20,7 +20,9 @@ router
   .route('/startNewGroup')
   .post(authController.restrictTo('user'), groupController.startNewGroup);
 
-//Restrict non "auth user" routes to admin (LATER)
-router.route('/:id').delete(groupController.deleteGroup);
+// Admin route for deleting groups
+router
+  .route('/:id')
+  .delete(authController.restrictTo('admin'), groupController.deleteGroup);
 
 module.exports = router;
