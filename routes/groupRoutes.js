@@ -4,8 +4,7 @@ const authController = require('../controllers/authController');
 const shareRouter = require('./shareRoutes');
 
 // Merge params to be able to see groups per userId getMyGroups
-const router = express.Router();
-// const router = express.Router({ mergeParams: true });
+const router = express.Router({ mergeParams: true });
 
 router.use('/:groupId/shares', shareRouter);
 
@@ -21,9 +20,24 @@ router
   .route('/startNewGroup')
   .post(authController.restrictTo('user'), groupController.startNewGroup);
 
-// Route for deleting groups if admin or groupAdmin
+// Routes for deleting or editing groups if admin or groupAdmin
 router
   .route('/:id')
-  .delete(groupController.checkIfGroupAdmin, groupController.deleteGroup);
+  .delete(groupController.checkIfGroupAdmin, groupController.deleteGroup)
+  .patch(groupController.checkIfGroupAdmin, groupController.updateGroup);
+
+// Routes for adding or removing members/admins if groupAdmin
+router
+  .route('/:id/addMember')
+  .patch(groupController.checkIfGroupAdmin, groupController.addMember);
+router
+  .route('/:id/removeMember')
+  .patch(groupController.checkIfGroupAdmin, groupController.removeMember);
+router
+  .route('/:id/addAdmin')
+  .patch(groupController.checkIfGroupAdmin, groupController.addAdmin);
+router
+  .route('/:id/removeAdmin')
+  .patch(groupController.checkIfGroupAdmin, groupController.removeAdmin);
 
 module.exports = router;
