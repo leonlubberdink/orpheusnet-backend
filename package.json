@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon server.js",
-    "start:prod": "cross-env NODE_ENV=production nodemon server.js"
+    "start:prod": "cross-env NODE_ENV=production nodemon server.js",
+    "test": "jest app.test.js"
   },
   "author": "Leon Lubberdink",
   "license": "ISC",
@@ -27,6 +28,8 @@
     "xss-clean": "^0.1.4"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3"
+    "cross-env": "^7.0.3",
+    "jest": "^29.6.4",
+    "supertest": "^6.3.3"
   }
 }
