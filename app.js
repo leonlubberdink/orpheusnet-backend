@@ -21,7 +21,7 @@ const groupRouter = require("./routes/groupRoutes");
 const app = express();
 
 app.get("/test", (_req, res) => {
-  res.status(200).send("Hello world");
+  res.status(200).send("Hello world!");
 });
 
 // 1 GLOBAL MIDDLEWARES
