@@ -18,21 +18,6 @@ jobs:
     # The type of runner that the job will run on
     runs-on: self-hosted
 
-    # Environmental variables
-    env:
-      DATABASE: ${{ secrets.DATABASE }}
-      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-      EAIL_MUSERNAME: ${{ secrets.EAIL_MUSERNAME }}
-      EMAIL_HOST: ${{ secrets.EMAIL_HOST }}
-      EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-      EMAIL_PORT: ${{ secrets.EMAIL_PORT }}
-      JWT_COOKIE_EXPIRES_IN: ${{ secrets.JWT_COOKIE_EXPIRES_IN }}
-      JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
-      NODE_ENV: ${{ secrets.NODE_ENV }}
-      PORT: ${{ secrets.PORT }}
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v3
