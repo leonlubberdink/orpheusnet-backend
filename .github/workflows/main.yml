@@ -28,3 +28,8 @@ jobs:
 
       - name: Install dependencies
         run: npm i
+
+      - name: Restart pm2 process
+        run: pm2 stop 0
+          pm2 start 0
+          pm2 save
