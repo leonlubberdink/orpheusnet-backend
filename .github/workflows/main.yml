@@ -30,6 +30,7 @@ jobs:
         run: npm i
 
       - name: Restart pm2 process
-        run: pm2 stop 0
-          pm2 start 0
+        run:
+          cd ~/projects/orpheusnet/_work/orpheusnet-backend/orpheusnet-backend
+          pm2 restart 0
           pm2 save
