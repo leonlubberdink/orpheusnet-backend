@@ -9,6 +9,7 @@ const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp");
+const cors = require("cors");
 
 //Require custom modules
 const AppError = require("./utils/appError");
@@ -44,6 +45,9 @@ if (process.env.NODE_ENV === "development") {
 // MIDDLEWARES FOR PRODUCTION ENV
 // Serving static files
 app.use(express.static(path.join(__dirname, "public")));
+
+///USE CORS
+app.use(cors());
 
 // Set security https headers
 app.use(
