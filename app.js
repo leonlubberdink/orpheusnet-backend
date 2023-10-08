@@ -41,9 +41,12 @@ if (process.env.NODE_ENV === "development") {
   // });
 }
 
-// MIDDLEWARES FOR PRODFUCTION ENV
+// MIDDLEWARES FOR PRODUCTION ENV
 // Serving static files
 app.use(express.static(path.join(__dirname, "public")));
+
+///USE CORS
+app.use(cors());
 
 // Set security https headers
 app.use(
