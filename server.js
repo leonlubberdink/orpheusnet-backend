@@ -24,25 +24,29 @@ mongoose
   })
   .then((con) => console.log("DB Connection successful!"));
 
-// const port = process.env.PORT || 7999;
-// const server = app.listen(port, () => {
-//   console.log(`App listening on port ${port}...`);
-// });
+if (process.env.NODE_ENV === "development") {
+  const port = process.env.PORT || 7999;
+  app.listen(port, () => {
+    console.log(`App listening on port ${port}...`);
+  });
+}
 
 // HTTPS SERVER
-const httpsPort = process.env.SSL_PORT;
+if (process.env.NODE_ENV === "production") {
+  const httpsPort = process.env.SSL_PORT;
 
-const options = {
-  key: fs.readFileSync(`${process.env.PRIV_KEY}`),
-  cert: fs.readFileSync(`${process.env.PUB_KEY}`),
-};
+  const options = {
+    key: fs.readFileSync(`${process.env.PRIV_KEY}`),
+    cert: fs.readFileSync(`${process.env.PUB_KEY}`),
+  };
 
-const httpsServer = https.createServer(options, app);
+  const httpsServer = https.createServer(options, app);
 
-// Define your routes and middleware here
-httpsServer.listen(httpsPort, () => {
-  console.log(`Server is running on port ${httpsPort}`);
-});
+  // Define your routes and middleware here
+  httpsServer.listen(httpsPort, () => {
+    console.log(`Server is running on port ${httpsPort}`);
+  });
+}
 
 // Handle unhandled rejected promisses
 process.on("unhandledRejection", (err) => {

@@ -16,6 +16,7 @@ const globalErrorHandler = require("./controllers/errorController");
 const userRouter = require("./routes/userRoutes");
 const shareRouter = require("./routes/shareRoutes");
 const groupRouter = require("./routes/groupRoutes");
+const soundcloudRouter = require("./routes/soundcloudRoutes");
 
 //Start express app
 const app = express();
@@ -121,6 +122,7 @@ app.use(
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/shares", shareRouter);
 app.use("/api/v1/groups", groupRouter);
+app.use("/api/v1/soundcloud", soundcloudRouter);
 
 // Create AppError wenn non existing route is used
 app.all("*", (req, res, next) => {
