@@ -2,3 +2,4 @@ node_modules
 orpheusnet.code-workspace
 .prettierrc
 .env
+.env_prod
