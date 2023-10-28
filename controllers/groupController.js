@@ -62,9 +62,7 @@ exports.updateGroup = catchAsync(async (req, res, next) => {
 
 exports.startNewGroup = catchAsync(async (req, res, next) => {
   req.body.groupAdmins = [req.user.id];
-
-  if (req.body.members) req.body.members.unshift(req.user.id);
-  if (!req.body.members) req.body.members = [req.user.id];
+  req.body.members = [req.user.id];
 
   const newGroup = await Group.create(req.body);
 
