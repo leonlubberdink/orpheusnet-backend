@@ -82,9 +82,9 @@ exports.getUsersGroups = catchAsync(async (req, res, next) => {
   let filter = {};
   if (req.params.userId) filter = { members: req.params.userId };
 
-  const groups = await Group.find(filter).select(
-    'groupName groupImage members shares'
-  );
+  const groups = await Group.find(filter)
+    .select('groupName groupImage members')
+    .populate({ path: 'shares', select: '_id' });
 
   res.status(200).json({
     status: 'success',
