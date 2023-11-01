@@ -2,6 +2,7 @@ const Share = require('../models/shareModel');
 const factory = require('./controllerFactory');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+const getSoundCLoudEmbedData = require('../services/getSoundCLoudEmbedData');
 
 const popOptions = {
   path: 'group user',
@@ -41,6 +42,12 @@ exports.getAllSharesInGroup = catchAsync(async (req, res, next) => {
 });
 
 exports.createShare = catchAsync(async (req, res, next) => {
+  if (req.body.shareUrl.includes('soundcloud')) {
+    const embedData = await getSoundCLoudEmbedData(req.body.shareUrl);
+
+    req.body.shareUrl = embedData;
+  }
+
   const newShare = await Share.create(req.body);
 
   res.status(201).json({
