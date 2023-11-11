@@ -20,8 +20,6 @@ const createAndSendToken = (user, statusCode, res) => {
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    secure: true,
-    sameSite: 'None',
   };
 
   // cookieOptions.secure only works wenn using prowser in production
@@ -78,14 +76,42 @@ exports.login = catchAsync(async (req, res, next) => {
   createAndSendToken(user, 200, res);
 });
 
+// Only for rendered pages, no errors!
+exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  if (req.cookies.jwt) {
+    // 1) Verification cookie
+    const decoded = await promisify(jwt.verify)(
+      req.cookies.jwt,
+      process.env.JWT_SECRET
+    );
+
+    // 3) Check if user still exists
+    const currentUser = await User.findById(decoded.id);
+
+    if (!currentUser) return next();
+
+    // 4) Check if user changed password after the token was issued
+    if (currentUser.hasPasswordChangedAfter(decoded.iat)) return next();
+
+    // Add current user to request, is usefull for further access control
+    req.user = currentUser;
+
+    //THERE IS A LOGGED IN USER
+    next();
+  }
+});
+
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check if it's there
   let token;
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
-  )
+  ) {
     token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt;
+  }
 
   if (!token)
     return next(
@@ -183,9 +209,6 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   if (user.hasTokenExpired()) {
     return next(new AppError('Token has expired!', 401));
   }
-
-  console.log(req.body.password);
-  console.log(req.body.passwordConfirm);
 
   user.password = req.body.password;
   user.passwordConfirm = req.body.passwordConfirm;

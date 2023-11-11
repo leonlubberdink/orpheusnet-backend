@@ -23,6 +23,7 @@ router
 // Routes for deleting or editing groups if admin or groupAdmin
 router
   .route('/:id')
+  .get(groupController.getGroup)
   .delete(groupController.checkIfGroupAdmin, groupController.deleteGroup)
   .patch(groupController.checkIfGroupAdmin, groupController.updateGroup);
 

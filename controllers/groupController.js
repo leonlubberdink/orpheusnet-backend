@@ -5,7 +5,6 @@ const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
 exports.checkIfGroupAdmin = catchAsync(async (req, res, next) => {
-  console.log(req.params);
   if (req.user.role !== 'admin') {
     const group = await Group.findById(req.params.id).populate({
       path: 'groupAdmins',
@@ -28,6 +27,7 @@ exports.checkIfGroupAdmin = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteGroup = factory.deleteOne(Group);
+exports.getGroup = factory.getOne(Group);
 
 exports.updateGroup = catchAsync(async (req, res, next) => {
   if (req.body.groupAdmins)
@@ -79,6 +79,22 @@ exports.startNewGroup = catchAsync(async (req, res, next) => {
 });
 
 exports.getUsersGroups = catchAsync(async (req, res, next) => {
+  let filter = {};
+  if (req.params.userId) filter = { members: req.params.userId };
+
+  const groups = await Group.find(filter)
+    .select('groupName groupImage members')
+    .populate({ path: 'shares', select: '_id' });
+
+  res.status(200).json({
+    status: 'success',
+    data: {
+      data: groups,
+    },
+  });
+});
+
+exports.getGroupMembers = catchAsync(async (req, res, next) => {
   let filter = {};
   if (req.params.userId) filter = { members: req.params.userId };
 

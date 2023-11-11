@@ -9,6 +9,7 @@ const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 
 //Require custom modules
@@ -18,12 +19,10 @@ const userRouter = require('./routes/userRoutes');
 const shareRouter = require('./routes/shareRoutes');
 const groupRouter = require('./routes/groupRoutes');
 
+let corsOptions = {};
+
 //Start express app
 const app = express();
-
-app.get('/test', (_req, res) => {
-  res.status(200).send('Hello world!');
-});
 
 // 1 GLOBAL MIDDLEWARES
 
@@ -34,11 +33,21 @@ if (process.env.NODE_ENV === 'development') {
   // Morgan Middleware for logging request info to console.
   app.use(morgan('dev'));
 
-  // // Custom, Middleware for testing purposes
-  // app.use((req, res, next) => {
-  //   console.log(req.headers);
-  //   next();
-  // });
+  corsOptions = {
+    origin: 'http://localhost:5173', // Replace with the exact origin of your frontend
+    methods: 'GET, POST, PUT, DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+  };
+}
+
+if (process.env.NODE_ENV === 'production') {
+  corsOptions = {
+    origin: 'https://oprpheusnet.com', // Replace with the exact origin of your frontend
+    methods: 'GET, POST, PUT, DELETE',
+    credentials: true,
+    optionsSuccessStatus: 204,
+  };
 }
 
 // MIDDLEWARES FOR PRODUCTION ENV
@@ -46,7 +55,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.static(path.join(__dirname, 'public')));
 
 ///USE CORS
-app.use(cors());
+app.use(cors(corsOptions));
 
 // Set security https headers
 app.use(
@@ -107,6 +116,14 @@ const limiter = rateLimit({
 
 // Parse incoming requests with JSON payloads (body-parser)
 app.use(express.json({ limit: '10kb' }));
+
+// pasre data from cookie
+app.use(cookieParser());
+
+app.use((req, res, next) => {
+  console.log(req.cookies);
+  next();
+});
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
