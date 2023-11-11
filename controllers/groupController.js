@@ -27,7 +27,13 @@ exports.checkIfGroupAdmin = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteGroup = factory.deleteOne(Group);
-exports.getGroup = factory.getOne(Group);
+
+groupPopulateOptions = {
+  path: 'members',
+  select: 'userName userImage role',
+};
+
+exports.getGroup = factory.getOne(Group, groupPopulateOptions);
 
 exports.updateGroup = catchAsync(async (req, res, next) => {
   if (req.body.groupAdmins)
@@ -83,7 +89,7 @@ exports.getUsersGroups = catchAsync(async (req, res, next) => {
   if (req.params.userId) filter = { members: req.params.userId };
 
   const groups = await Group.find(filter)
-    .select('groupName groupImage members')
+    .select('groupName groupImage members groupAdmins')
     .populate({ path: 'shares', select: '_id' });
 
   res.status(200).json({

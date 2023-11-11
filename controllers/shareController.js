@@ -28,6 +28,7 @@ exports.deleteShare = factory.deleteOne(Share);
 
 exports.getAllSharesInGroup = catchAsync(async (req, res, next) => {
   let filter = {};
+
   if (req.params.groupId) filter = { group: req.params.groupId };
 
   const shares = await Share.find(filter).populate(popOptions);
