@@ -78,6 +78,9 @@ exports.login = catchAsync(async (req, res, next) => {
 
 // Only for rendered pages, no errors!
 exports.isLoggedIn = catchAsync(async (req, res, next) => {
+  let user = '';
+  let authenticated = false;
+
   if (req.cookies.jwt) {
     // 1) Verification cookie
     const decoded = await promisify(jwt.verify)(
@@ -85,20 +88,26 @@ exports.isLoggedIn = catchAsync(async (req, res, next) => {
       process.env.JWT_SECRET
     );
 
-    // 3) Check if user still exists
+    // 2) Check if user still exists
     const currentUser = await User.findById(decoded.id);
 
     if (!currentUser) return next();
 
-    // 4) Check if user changed password after the token was issued
+    // 3) Check if user changed password after the token was issued
     if (currentUser.hasPasswordChangedAfter(decoded.iat)) return next();
 
-    // Add current user to request, is usefull for further access control
-    req.user = currentUser;
-
-    //THERE IS A LOGGED IN USER
-    next();
+    // Set authenticated: true, and user: currentUser
+    authenticated = true;
+    user = currentUser;
   }
+  //THERE IS A LOGGED IN USER
+  res.status(200).json({
+    status: 'success',
+    data: {
+      authenticated,
+      user,
+    },
+  });
 });
 
 exports.protect = catchAsync(async (req, res, next) => {

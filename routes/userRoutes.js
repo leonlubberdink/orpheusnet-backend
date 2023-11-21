@@ -5,6 +5,8 @@ const groupRouter = require('./groupRoutes');
 
 const router = express.Router();
 
+router.use('/isLoggedIn', authController.isLoggedIn);
+
 router.use('/:userId/groups', groupRouter);
 
 router.post('/signup', authController.signup);
