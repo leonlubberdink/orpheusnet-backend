@@ -52,7 +52,10 @@ if (process.env.NODE_ENV === 'production') {
 
 // MIDDLEWARES FOR PRODUCTION ENV
 // Serving static files
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files from these directories
+app.use('/group-img', express.static(__dirname + '/public/img/groups'));
+app.use('/user-img', express.static(__dirname + '/public/img/users'));
+app.use('/default-img', express.static(__dirname + '/public/default-img'));
 
 ///USE CORS
 app.use(cors(corsOptions));
@@ -117,13 +120,15 @@ const limiter = rateLimit({
 // Parse incoming requests with JSON payloads (body-parser)
 app.use(express.json({ limit: '10kb' }));
 
+app.use(express.urlencoded({ extended: true })); // For form data
+
 // pasre data from cookie
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-  console.log(req.cookies);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(req.cookies);
+//   next();
+// });
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());

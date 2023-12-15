@@ -18,7 +18,11 @@ router
 // Route for starting a new group
 router
   .route('/startNewGroup')
-  .post(authController.restrictTo('user'), groupController.startNewGroup);
+  .post(
+    authController.restrictTo('user'),
+    groupController.uploadGroupImage,
+    groupController.startNewGroup
+  );
 
 // Routes for deleting or editing groups if admin or groupAdmin
 router

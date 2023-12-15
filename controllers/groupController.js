@@ -1,8 +1,41 @@
+const multer = require('multer');
+
 const Group = require('../models/groupModel');
 const User = require('../models/userModel');
 const factory = require('./controllerFactory');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
+
+const multerStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'public/img/groups');
+  },
+  filename: (req, file, cb) => {
+    const ext = file.mimetype.split('/')[1];
+    cb(null, `${req.body.groupName.replaceAll(' ', '-')}-${Date.now()}.${ext}`);
+  },
+});
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(
+      new AppError(
+        'File is not an image! Please upload image files only.',
+        400
+      ),
+      false
+    );
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadGroupImage = upload.single('groupImage');
 
 exports.checkIfGroupAdmin = catchAsync(async (req, res, next) => {
   if (req.user.role !== 'admin') {
@@ -69,6 +102,8 @@ exports.updateGroup = catchAsync(async (req, res, next) => {
 exports.startNewGroup = catchAsync(async (req, res, next) => {
   req.body.groupAdmins = [req.user.id];
   req.body.members = [req.user.id];
+
+  req.body.groupImage = req.file ? req.file.filename : 'default.jpg';
 
   const newGroup = await Group.create(req.body);
 

@@ -1,5 +1,6 @@
 node_modules
 orpheusnet.code-workspace
+public/img
 .prettierrc
 .env
 .env_prod
