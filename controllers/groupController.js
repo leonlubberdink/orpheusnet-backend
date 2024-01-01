@@ -1,4 +1,5 @@
 const multer = require('multer');
+const sharp = require('sharp');
 
 const Group = require('../models/groupModel');
 const User = require('../models/userModel');
@@ -6,15 +7,17 @@ const factory = require('./controllerFactory');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 
-const multerStorage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'public/img/groups');
-  },
-  filename: (req, file, cb) => {
-    const ext = file.mimetype.split('/')[1];
-    cb(null, `${req.body.groupName.replaceAll(' ', '-')}-${Date.now()}.${ext}`);
-  },
-});
+// const multerStorage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'public/img/groups');
+//   },
+//   filename: (req, file, cb) => {
+//     const ext = file.mimetype.split('/')[1];
+//     cb(null, `${req.body.groupName.replaceAll(' ', '-')}-${Date.now()}.${ext}`);
+//   },
+// });
+
+const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
@@ -36,6 +39,22 @@ const upload = multer({
 });
 
 exports.uploadGroupImage = upload.single('groupImage');
+
+exports.resizeGroupImage = (req, res, next) => {
+  if (!req.file) return next();
+
+  req.file.filename = `${req.body.groupName
+    .replaceAll(' ', '-')
+    .toLowerCase()}-${Date.now()}.jpeg`;
+
+  sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/groups/${req.file.filename}`);
+
+  next();
+};
 
 exports.checkIfGroupAdmin = catchAsync(async (req, res, next) => {
   if (req.user.role !== 'admin') {

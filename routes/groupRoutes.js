@@ -21,6 +21,7 @@ router
   .post(
     authController.restrictTo('user'),
     groupController.uploadGroupImage,
+    groupController.resizeGroupImage,
     groupController.startNewGroup
   );
 
