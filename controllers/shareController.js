@@ -2,7 +2,7 @@ const Share = require('../models/shareModel');
 const factory = require('./controllerFactory');
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const getSoundCLoudEmbedData = require('../services/getSoundCLoudEmbedData');
+const checkUrlService = require('../services/checkUrlService');
 
 const popOptions = {
   path: 'group user',
@@ -43,13 +43,34 @@ exports.getAllSharesInGroup = catchAsync(async (req, res, next) => {
 });
 
 exports.createShare = catchAsync(async (req, res, next) => {
-  if (req.body.shareUrl.includes('soundcloud')) {
-    const embedData = await getSoundCLoudEmbedData(req.body.shareUrl);
+  let oEmbedUrl, service, shareObject;
 
-    req.body.shareUrl = embedData;
+  const { url: shareUrl, group, format, user } = req.body;
+
+  if (shareUrl.includes('soundcloud')) {
+    oEmbedUrl = process.env.SOUNDCLOUD_OEMBED_URL;
+    platform = 'SoundCloud';
+
+    const urlInfo = await checkUrlService(oEmbedUrl, req.body.url, service);
+
+    if (urlInfo)
+      shareObject = {
+        shareUrl,
+        group,
+        user,
+        platform,
+        format: format.toLowerCase(),
+        publisher: urlInfo.author_name,
+        title: urlInfo.title,
+      };
   }
 
-  const newShare = await Share.create(req.body);
+  if (req.body.url.includes('spotify')) {
+    oEmbedUrl = process.env.SPOTIFY_OEMBED_URL;
+    platform = 'Spotify';
+  }
+
+  const newShare = await Share.create(shareObject);
 
   res.status(201).json({
     status: 'success',

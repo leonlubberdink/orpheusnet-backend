@@ -24,7 +24,18 @@ const shareSchema = new mongoose.Schema({
       },
     ],
   },
-  shareType: String,
+  publisher: {
+    type: String,
+  },
+  title: {
+    type: String,
+  },
+  shareType: {
+    type: String,
+  },
+  platform: {
+    type: String,
+  },
   format: {
     type: String,
     required: [true, 'A format must be provided'],
