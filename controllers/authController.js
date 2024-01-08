@@ -6,30 +6,21 @@ const sendEmail = require('../utils/email');
 const catchAsync = require('../utils/catchAsync');
 const jwt = require('jsonwebtoken');
 
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
-  });
+const signToken = (id, type) => {
+  if (type === 'refresh')
+    return jwt.sign({ id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES_IN,
+    });
+
+  if (type === 'access')
+    return jwt.sign({ id }, process.env.ACCES_TOKEN_SECRET, {
+      expiresIn: process.env.ACCES_TOKEN_EXPIRES_IN,
+    });
 };
 
-const createAndSendAccessToken = (user, statusCode, res) => {
-  const accessStoken = jwt.sign(
-    { userName: user.userName },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN * 60 * 1000 }
-  );
-
-  res.status(statusCode).json({
-    status: 'success',
-    accessStoken,
-    data: {
-      user,
-    },
-  });
-};
-
-const createAndSendRefreshToken = async (user, statusCode, res) => {
-  const refreshToken = signToken(user._id);
+const createAndSendJwtTokens = async (user, statusCode, res) => {
+  const accessToken = signToken(user._id, 'access');
+  const refreshToken = signToken(user._id, 'refresh');
 
   const cookieOptions = {
     expires: new Date(
@@ -40,7 +31,7 @@ const createAndSendRefreshToken = async (user, statusCode, res) => {
 
   await User.findByIdAndUpdate(user._id, { refreshToken });
 
-  // cookieOptions.secure only works wenn using prowser in production
+  // cookieOptions.secure only works wenn using browser in production
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
 
   res.cookie('jwt', refreshToken, cookieOptions);
@@ -50,7 +41,7 @@ const createAndSendRefreshToken = async (user, statusCode, res) => {
 
   res.status(statusCode).json({
     status: 'success',
-    refreshToken,
+    accessToken,
     data: {
       user,
     },
@@ -66,7 +57,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
   });
 
-  createAndSendRefreshToken(newUser, 201, res);
+  createAndSendJwtTokens(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -91,7 +82,78 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 3) If all is ok, send token to client
-  createAndSendRefreshToken(user, 200, res);
+  createAndSendJwtTokens(user, 200, res);
+});
+
+exports.logout = catchAsync(async (req, res, next) => {
+  const cookies = req.cookies;
+
+  if (!cookies?.jwt)
+    return res.status(204).json({
+      status: 'success',
+    });
+
+  const refreshToken = cookies.jwt;
+
+  const user = await User.findOne({ refreshToken });
+
+  if (!user) {
+    res.clearCookie('jwt', {});
+    return res.status(204).json({
+      status: 'success',
+    });
+  }
+
+  const decoded = await promisify(jwt.verify)(
+    refreshToken,
+    process.env.JWT_SECRET
+  );
+
+  if (!decoded || user.id !== decoded?.id)
+    return next(new AppError('Forbidden', 403));
+
+  if (user.hasPasswordChangedAfter(decoded.iat))
+    return next(new AppError('Forbidden', 403));
+
+  const accessToken = signToken(decoded.id, 'access');
+
+  res.status(204).json({
+    status: 'success',
+  });
+});
+
+exports.refreshAccessToken = catchAsync(async (req, res, next) => {
+  const cookies = req.cookies;
+
+  if (!cookies?.jwt) {
+    return next(
+      new AppError('You are not logged in! Please login to get access', 401)
+    );
+  }
+
+  const refreshToken = cookies.jwt;
+
+  const user = await User.findOne({ refreshToken });
+
+  if (!user) return next(new AppError('Forbidden', 403));
+
+  const decoded = await promisify(jwt.verify)(
+    refreshToken,
+    process.env.JWT_SECRET
+  );
+
+  if (!decoded || user.id !== decoded?.id)
+    return next(new AppError('Forbidden', 403));
+
+  if (user.hasPasswordChangedAfter(decoded.iat))
+    return next(new AppError('Forbidden', 403));
+
+  const accessToken = signToken(decoded.id, 'access');
+
+  res.status(200).json({
+    status: 'success',
+    accessToken,
+  });
 });
 
 // Only for rendered pages, no errors!
@@ -246,7 +308,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   // 3) Update changedPasswordAt property fo the user, in usermodel with presave hook
   // 4) Login user and send JWT
-  createAndSendRefreshToken(user, 200, res);
+  createAndSendJwtTokens(user, 200, res);
 });
 
 exports.updateMyPassword = catchAsync(async (req, res, next) => {
@@ -264,5 +326,5 @@ exports.updateMyPassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   // 4) Log user in, send JWT
-  createAndSendRefreshToken(user, 200, res);
+  createAndSendJwtTokens(user, 200, res);
 });
