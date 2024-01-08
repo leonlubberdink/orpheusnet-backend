@@ -12,8 +12,24 @@ const signToken = (id) => {
   });
 };
 
-const createAndSendToken = (user, statusCode, res) => {
-  const token = signToken(user._id);
+const createAndSendAccessToken = (user, statusCode, res) => {
+  const accessStoken = jwt.sign(
+    { userName: user.userName },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN * 60 * 1000 }
+  );
+
+  res.status(statusCode).json({
+    status: 'success',
+    accessStoken,
+    data: {
+      user,
+    },
+  });
+};
+
+const createAndSendRefreshToken = async (user, statusCode, res) => {
+  const refreshToken = signToken(user._id);
 
   const cookieOptions = {
     expires: new Date(
@@ -22,17 +38,19 @@ const createAndSendToken = (user, statusCode, res) => {
     httpOnly: true,
   };
 
+  await User.findByIdAndUpdate(user._id, { refreshToken });
+
   // cookieOptions.secure only works wenn using prowser in production
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
 
-  res.cookie('jwt', token, cookieOptions);
+  res.cookie('jwt', refreshToken, cookieOptions);
 
   // Remove password from response output
   user.password = undefined;
 
   res.status(statusCode).json({
     status: 'success',
-    token,
+    refreshToken,
     data: {
       user,
     },
@@ -48,7 +66,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     passwordConfirm: req.body.passwordConfirm,
   });
 
-  createAndSendToken(newUser, 201, res);
+  createAndSendRefreshToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -73,7 +91,7 @@ exports.login = catchAsync(async (req, res, next) => {
   }
 
   // 3) If all is ok, send token to client
-  createAndSendToken(user, 200, res);
+  createAndSendRefreshToken(user, 200, res);
 });
 
 // Only for rendered pages, no errors!
@@ -228,7 +246,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   // 3) Update changedPasswordAt property fo the user, in usermodel with presave hook
   // 4) Login user and send JWT
-  createAndSendToken(user, 200, res);
+  createAndSendRefreshToken(user, 200, res);
 });
 
 exports.updateMyPassword = catchAsync(async (req, res, next) => {
@@ -246,5 +264,5 @@ exports.updateMyPassword = catchAsync(async (req, res, next) => {
   await user.save();
 
   // 4) Log user in, send JWT
-  createAndSendToken(user, 200, res);
+  createAndSendRefreshToken(user, 200, res);
 });

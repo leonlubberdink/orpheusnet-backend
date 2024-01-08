@@ -46,6 +46,7 @@ const userSchema = new mongoose.Schema({
     message: 'Please use the same password',
     select: false,
   },
+  refreshToken: String,
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
