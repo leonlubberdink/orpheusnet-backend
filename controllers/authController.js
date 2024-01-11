@@ -6,6 +6,23 @@ const sendEmail = require('../utils/email');
 const catchAsync = require('../utils/catchAsync');
 const jwt = require('jsonwebtoken');
 
+const clearCookie = (res) => {
+  if (process.env.NODE_ENV === 'development') {
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      sameSite: 'None',
+    });
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      sameSite: 'None',
+      secure: true,
+    });
+  }
+};
+
 const signToken = (id, type) => {
   if (type === 'refresh')
     return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -27,18 +44,18 @@ const createAndSendJwtTokens = async (user, statusCode, res) => {
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
+    sameSite: 'None',
   };
 
   await User.findByIdAndUpdate(user._id, { refreshToken });
 
-  // cookieOptions.secure only works wenn using browser in production
+  // Set cookieOptions.secure (only works wenn using browser in production)
+  // Send refreshToken as httpOnly cookie
   if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
-
   res.cookie('jwt', refreshToken, cookieOptions);
 
-  // Remove password from response output
+  // Remove password from response output, and send accessToken as json
   user.password = undefined;
-
   res.status(statusCode).json({
     status: 'success',
     accessToken,
@@ -86,36 +103,34 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.logout = catchAsync(async (req, res, next) => {
+  // On client also delete accessToken from memory
+
+  // Get cookies
   const cookies = req.cookies;
 
-  if (!cookies?.jwt)
-    return res.status(204).json({
-      status: 'success',
-    });
-
-  const refreshToken = cookies.jwt;
-
-  const user = await User.findOne({ refreshToken });
-
-  if (!user) {
-    res.clearCookie('jwt', {});
+  // Get check if jwt token in cookie, if not, return success
+  if (!cookies?.jwt) {
     return res.status(204).json({
       status: 'success',
     });
   }
 
-  const decoded = await promisify(jwt.verify)(
-    refreshToken,
-    process.env.JWT_SECRET
-  );
+  // If JWT token, search User belonging to this token
+  const refreshToken = cookies.jwt;
+  const user = await User.findOne({ refreshToken });
 
-  if (!decoded || user.id !== decoded?.id)
-    return next(new AppError('Forbidden', 403));
+  // If no user, clear cookie, and return success
+  if (!user) {
+    clearCookie(req, res, next);
+    return res.status(204).json({
+      status: 'success',
+    });
+  }
 
-  if (user.hasPasswordChangedAfter(decoded.iat))
-    return next(new AppError('Forbidden', 403));
+  // If user is found, remove refreshtoken from user in database.
+  await User.findByIdAndUpdate(user._id, { refreshToken: '' });
 
-  const accessToken = signToken(decoded.id, 'access');
+  clearCookie(res);
 
   res.status(204).json({
     status: 'success',
@@ -190,16 +205,49 @@ exports.isLoggedIn = catchAsync(async (req, res, next) => {
   });
 });
 
+//This will be the new protect function
+exports.verifyJWT = catchAsync(async (req, res, next) => {
+  // 1) Getting Auth Headers and check if token is there
+  const authHeader = req.headers['authorization'];
+
+  if (!authHeader || !authHeader.split(' ')[1]) {
+    return next(
+      new AppError('You are not logged in! Please login to get access', 401)
+    );
+  }
+
+  // 2) Verify token
+  const token = authHeader.split(' ')[1];
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  // 3) Check if user still exists
+  const currentUser = await User.findById(decoded.id);
+
+  if (!currentUser)
+    return next(
+      new AppError('The user belonging to the token no longer exists.', 401)
+    );
+
+  // 4) Check if user changed password after the token was issued
+  if (currentUser.hasPasswordChangedAfter(decoded.iat))
+    return next(
+      new AppError('User recently changed password! Please log in again', 401)
+    );
+
+  // Add current user to request, is usefull for further access control
+  req.user = currentUser;
+
+  //GRANT ACCESS TO PROTECTED ROUTE
+  next();
+});
+
 exports.protect = catchAsync(async (req, res, next) => {
   // 1) Getting token and check if it's there
   let token;
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith('Bearer')
-  ) {
+  if (req.headers.authorization?.startsWith('Bearer')) {
     token = req.headers.authorization.split(' ')[1];
   } else if (req.cookies.jwt) {
-    token = req.cookies.jwt;
+    token = req.cookies.jwt || null;
   }
 
   if (!token)

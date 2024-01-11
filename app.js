@@ -14,6 +14,7 @@ const cors = require('cors');
 
 //Require custom modules
 const AppError = require('./utils/appError');
+const credentials = require('./utils/credentials');
 const globalErrorHandler = require('./controllers/errorController');
 const userRouter = require('./routes/userRoutes');
 const shareRouter = require('./routes/shareRoutes');
@@ -34,7 +35,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 
   corsOptions = {
-    origin: 'http://localhost:5173', // Replace with the exact origin of your frontend
+    origin: process.env.LOCALHOST,
     methods: 'GET, POST, PUT, DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
@@ -43,7 +44,7 @@ if (process.env.NODE_ENV === 'development') {
 
 if (process.env.NODE_ENV === 'production') {
   corsOptions = {
-    origin: 'https://oprpheusnet.com', // Replace with the exact origin of your frontend
+    origin: process.env.APP_DOMAIN,
     methods: 'GET, POST, PUT, DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
@@ -58,6 +59,7 @@ app.use('/user-img', express.static(__dirname + '/public/img/users'));
 app.use('/default-img', express.static(__dirname + '/public/default-img'));
 
 ///USE CORS
+app.use(credentials);
 app.use(cors(corsOptions));
 
 // Set security https headers
