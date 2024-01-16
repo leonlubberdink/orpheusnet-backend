@@ -66,6 +66,7 @@ const createAndSendJwtTokens = async (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
+  console.log('SIGNUP');
   const newUser = await User.create({
     userName: req.body.userName,
     email: req.body.email,
@@ -73,6 +74,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
   });
+
+  console.log(newUser);
 
   createAndSendJwtTokens(newUser, 201, res);
 });

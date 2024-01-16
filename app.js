@@ -35,7 +35,7 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 
   corsOptions = {
-    origin: process.env.LOCALHOST,
+    origin: process.env.LOCALHOST_2,
     methods: 'GET, POST, PUT, DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
