@@ -10,7 +10,6 @@ const clearCookie = (res) => {
   if (process.env.NODE_ENV === 'development') {
     res.clearCookie('jwt', {
       httpOnly: true,
-      sameSite: 'None',
     });
   }
 
@@ -44,14 +43,18 @@ const createAndSendJwtTokens = async (user, statusCode, res) => {
       Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
     ),
     httpOnly: true,
-    sameSite: 'None',
   };
 
   await User.findByIdAndUpdate(user._id, { refreshToken });
 
   // Set cookieOptions.secure (only works wenn using browser in production)
   // Send refreshToken as httpOnly cookie
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  if (process.env.NODE_ENV === 'production') {
+    cookieOptions.secure = true;
+    cookieOptions.sameSite = 'None';
+  }
+
+  console.log('Send cookie', refreshToken);
   res.cookie('jwt', refreshToken, cookieOptions);
 
   // Remove password from response output, and send accessToken as json
@@ -171,6 +174,9 @@ exports.refreshAccessToken = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     accessToken,
+    data: {
+      user,
+    },
   });
 });
 
@@ -245,6 +251,7 @@ exports.verifyJWT = catchAsync(async (req, res, next) => {
 });
 
 exports.protect = catchAsync(async (req, res, next) => {
+  console.log('PROTECT');
   // 1) Getting token and check if it's there
   let token;
   if (req.headers.authorization?.startsWith('Bearer')) {
@@ -252,6 +259,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   } else if (req.cookies.jwt) {
     token = req.cookies.jwt || null;
   }
+  console.log(token);
 
   if (!token)
     return next(
@@ -259,7 +267,10 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
 
   // 2) Verification token
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const decoded = await promisify(jwt.verify)(
+    token,
+    process.env.ACCES_TOKEN_SECRET
+  );
 
   // 3) Check if user still exists
   const currentUser = await User.findById(decoded.id);
