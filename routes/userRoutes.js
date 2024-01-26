@@ -5,7 +5,7 @@ const groupRouter = require('./groupRoutes');
 
 const router = express.Router();
 
-router.use('/isLoggedIn', authController.isLoggedIn);
+// router.use('/isLoggedIn', authController.isLoggedIn);
 
 router.use('/refreshToken', authController.refreshAccessToken);
 
@@ -19,7 +19,7 @@ router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 
 //All routes below are protectet with JWT
-router.use(authController.protect);
+router.use(authController.verifyJWT);
 
 router.get('/me', userController.getMe, userController.getOneUser);
 

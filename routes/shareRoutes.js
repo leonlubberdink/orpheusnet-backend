@@ -5,7 +5,7 @@ const authController = require('../controllers/authController');
 // Merge params to be able to see shares per groupId getAllSharesInGroup
 const router = express.Router({ mergeParams: true });
 
-router.use(authController.protect);
+router.use(authController.verifyJWT);
 
 // Routes for creating a share in a group,
 // and getting all shares beloning to group

@@ -8,7 +8,7 @@ const router = express.Router({ mergeParams: true });
 
 router.use('/:groupId/shares', shareRouter);
 
-router.use(authController.protect);
+router.use(authController.verifyJWT);
 
 // Route for getting all groups where user is a member from
 router
