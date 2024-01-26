@@ -49,10 +49,7 @@ const createAndSendJwtTokens = async (user, statusCode, res) => {
 
   // Set cookieOptions.secure (only works wenn using browser in production)
   // Send refreshToken as httpOnly cookie
-  if (process.env.NODE_ENV === 'production') {
-    cookieOptions.secure = true;
-    cookieOptions.sameSite = 'None';
-  }
+  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
   res.cookie('jwt', refreshToken, cookieOptions);
 
   // Remove password from response output, and send accessToken as json
@@ -170,6 +167,9 @@ exports.refreshAccessToken = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: 'success',
     accessToken,
+    data: {
+      user,
+    },
   });
 });
 
@@ -243,22 +243,22 @@ exports.verifyJWT = catchAsync(async (req, res, next) => {
   next();
 });
 
-// exports.protect = catchAsync(async (req, res, next) => {
-//   // 1) Getting token and check if it's there
-//   let token;
-//   if (req.headers.authorization?.startsWith('Bearer')) {
-//     token = req.headers.authorization.split(' ')[1];
-//   } else if (req.cookies.jwt) {
-//     token = req.cookies.jwt || null;
-//   }
+exports.protect = catchAsync(async (req, res, next) => {
+  // 1) Getting token and check if it's there
+  let token;
+  if (req.headers.authorization?.startsWith('Bearer')) {
+    token = req.headers.authorization.split(' ')[1];
+  } else if (req.cookies.jwt) {
+    token = req.cookies.jwt || null;
+  }
 
 //   if (!token)
 //     return next(
 //       new AppError('You are not logged in! Please login to get access', 401)
 //     );
 
-//   // 2) Verification token
-//   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  // 2) Verification token
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
 
 //   // 3) Check if user still exists
 //   const currentUser = await User.findById(decoded.id);
