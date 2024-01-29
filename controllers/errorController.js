@@ -29,6 +29,7 @@ const handleJWTError = () => {
 
 const handleJWTExpiredError = () => {
   const message = `Your token has expired`;
+  console.log(message);
   return new AppError(message, 401);
 };
 
@@ -36,7 +37,7 @@ const handleJWTExpiredError = () => {
 
 // Function that gets triggered on error in development
 const sendErrDev = (err, res) => {
-  console.log(err);
+  if (err.name === 'TokenExpiredError') err.statusCode = 401;
   res.status(err.statusCode).json({
     status: err.status,
     error: err,

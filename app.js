@@ -56,7 +56,6 @@ if (process.env.NODE_ENV === 'production') {
 // Serve static files from these directories
 app.use('/group-img', express.static(__dirname + '/public/img/groups'));
 app.use('/user-img', express.static(__dirname + '/public/img/users'));
-app.use('/default-img', express.static(__dirname + '/public/default-img'));
 
 ///USE CORS
 app.use(credentials);
