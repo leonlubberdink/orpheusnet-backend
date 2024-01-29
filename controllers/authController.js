@@ -212,6 +212,8 @@ exports.verifyJWT = catchAsync(async (req, res, next) => {
   // 1) Getting Auth Headers and check if token is there
   const authHeader = req.headers['authorization'];
 
+  console.log(req.headers);
+
   if (!authHeader || !authHeader.split(' ')[1]) {
     return next(
       new AppError('You are not logged in! Please login to get access', 401)
@@ -220,7 +222,10 @@ exports.verifyJWT = catchAsync(async (req, res, next) => {
 
   // 2) Verify token
   const token = authHeader.split(' ')[1];
-  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+  const decoded = await promisify(jwt.verify)(
+    token,
+    process.env.ACCES_TOKEN_SECRET
+  );
 
   // 3) Check if user still exists
   const currentUser = await User.findById(decoded.id);
