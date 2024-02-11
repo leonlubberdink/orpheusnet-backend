@@ -45,7 +45,13 @@ const createAndSendJwtTokens = async (user, statusCode, res) => {
     httpOnly: true,
   };
 
-  await User.findByIdAndUpdate(user._id, { refreshToken });
+  const userWithNewRefreshToken = await User.findByIdAndUpdate(
+    user._id,
+    {
+      refreshToken,
+    },
+    { new: true }
+  );
 
   // Set cookieOptions.secure (only works wenn using browser in production)
   // Send refreshToken as httpOnly cookie
@@ -53,12 +59,13 @@ const createAndSendJwtTokens = async (user, statusCode, res) => {
   res.cookie('jwt', refreshToken, cookieOptions);
 
   // Remove password from response output, and send accessToken as json
-  user.password = undefined;
+  userWithNewRefreshToken.password = undefined;
   res.status(statusCode).json({
     status: 'success',
     accessToken,
+    test: 'Test',
     data: {
-      user,
+      user: userWithNewRefreshToken,
     },
   });
 };
@@ -136,6 +143,7 @@ exports.logout = catchAsync(async (req, res, next) => {
 });
 
 exports.refreshAccessToken = catchAsync(async (req, res, next) => {
+  console.log('REFRESH');
   const cookies = req.cookies;
 
   if (!cookies?.jwt) {
@@ -147,6 +155,8 @@ exports.refreshAccessToken = catchAsync(async (req, res, next) => {
   const refreshToken = cookies.jwt;
 
   const user = await User.findOne({ refreshToken });
+
+  console.log(user);
 
   if (!user) return next(new AppError('Forbidden', 403));
 

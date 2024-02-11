@@ -70,10 +70,16 @@ exports.checkIfGroupAdmin = catchAsync(async (req, res, next) => {
 
 exports.deleteGroup = factory.deleteOne(Group);
 
-groupPopulateOptions = {
-  path: 'members',
-  select: 'userName userImage role',
-};
+const groupPopulateOptions = [
+  {
+    path: 'members',
+    select: 'userName userImage role',
+  },
+  {
+    path: 'shares',
+    select: 'user',
+  },
+];
 
 exports.getGroup = factory.getOne(Group, groupPopulateOptions);
 
