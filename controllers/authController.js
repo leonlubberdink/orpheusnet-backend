@@ -1,10 +1,52 @@
 const { promisify } = require('util');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const sharp = require('sharp');
+
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
 const catchAsync = require('../utils/catchAsync');
-const jwt = require('jsonwebtoken');
+
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) {
+    cb(null, true);
+  } else {
+    cb(
+      new AppError(
+        'File is not an image! Please upload image files only.',
+        400
+      ),
+      false
+    );
+  }
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+exports.uploadUserImage = upload.single('userImage');
+
+exports.resizeUserImage = (req, res, next) => {
+  if (!req.file) return next();
+
+  req.file.filename = `${req.body.userName.toLowerCase()}-${Date.now()}.jpeg`;
+
+  console.log(req.file.filename);
+
+  sharp(req.file.buffer)
+    .resize(500, 500)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`public/img/users/${req.file.filename}`);
+
+  next();
+};
 
 const clearCookie = (res) => {
   if (process.env.NODE_ENV === 'development') {
@@ -63,7 +105,6 @@ const createAndSendJwtTokens = async (user, statusCode, res) => {
   res.status(statusCode).json({
     status: 'success',
     accessToken,
-    test: 'Test',
     data: {
       user: userWithNewRefreshToken,
     },
@@ -71,6 +112,9 @@ const createAndSendJwtTokens = async (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
+  console.log(req.file);
+  req.body.userImage = req.file ? req.file.filename : 'default.jpg';
+
   const newUser = await User.create({
     userName: req.body.userName,
     email: req.body.email,

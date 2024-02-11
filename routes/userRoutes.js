@@ -9,7 +9,12 @@ const router = express.Router();
 router.use('/:userId/groups', groupRouter);
 
 router.get('/refreshToken', authController.refreshAccessToken);
-router.post('/signup', authController.signup);
+router.post(
+  '/signup',
+  authController.uploadUserImage,
+  authController.resizeUserImage,
+  authController.signup
+);
 router.post('/login', authController.login);
 router.get('/logout', authController.logout);
 
