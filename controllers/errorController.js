@@ -29,7 +29,6 @@ const handleJWTError = () => {
 
 const handleJWTExpiredError = () => {
   const message = `Your token has expired`;
-  console.log(message);
   return new AppError(message, 401);
 };
 

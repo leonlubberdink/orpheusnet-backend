@@ -49,15 +49,11 @@ exports.createShare = catchAsync(async (req, res, next) => {
 
   const { url: shareUrl, group, format, user } = req.body;
 
-  console.log(shareUrl);
-
   if (shareUrl.includes('soundcloud')) {
     oEmbedUrl = process.env.SOUNDCLOUD_OEMBED_URL;
     platform = 'SoundCloud';
 
     const urlInfo = await checkUrlService(oEmbedUrl, req.body.url, platform);
-
-    console.log('URL INFO', urlInfo);
 
     if (urlInfo)
       shareObject = {
@@ -78,8 +74,6 @@ exports.createShare = catchAsync(async (req, res, next) => {
 
   // if url is invalid, but format was provided, put format in object.
   shareObject = { ...shareObject, format };
-
-  console.log(shareObject);
 
   const newShare = await Share.create(shareObject);
 
