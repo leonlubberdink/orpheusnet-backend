@@ -4,7 +4,7 @@ const { default: validator } = require('validator');
 const shareSchema = new mongoose.Schema({
   shareUrl: {
     type: String,
-    required: [true, 'A url must be provided'],
+    required: [true, 'Please provide a url of the music you want to share.'],
     lowercase: true,
     validate: [
       {
@@ -14,13 +14,14 @@ const shareSchema = new mongoose.Schema({
             require_tld: true,
             require_protocol: true,
           }),
-        message: 'Must be a Valid URL, including protocoll (http/https)',
+        message:
+          'Please provide a valid URL, including protocoll (http/https).',
       },
       {
         validator: (val) => {
           return val.includes('spotify') || val.includes('soundcloud');
         },
-        message: 'Url must be a soundcloud or spotify url',
+        message: 'Please provide a SoundCloud or Spotify url.',
       },
     ],
   },
@@ -38,7 +39,7 @@ const shareSchema = new mongoose.Schema({
   },
   format: {
     type: String,
-    required: [true, 'A format must be provided'],
+    required: [true, 'Please provide a format (Album / EP /Song / Mix)'],
     enum: {
       values: ['mix', 'album', 'ep', 'track', 'other'],
       message:

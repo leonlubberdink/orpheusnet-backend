@@ -143,7 +143,6 @@ exports.logout = catchAsync(async (req, res, next) => {
 });
 
 exports.refreshAccessToken = catchAsync(async (req, res, next) => {
-  console.log('REFRESH');
   const cookies = req.cookies;
 
   if (!cookies?.jwt) {
@@ -155,8 +154,6 @@ exports.refreshAccessToken = catchAsync(async (req, res, next) => {
   const refreshToken = cookies.jwt;
 
   const user = await User.findOne({ refreshToken });
-
-  console.log(user);
 
   if (!user) return next(new AppError('Forbidden', 403));
 
