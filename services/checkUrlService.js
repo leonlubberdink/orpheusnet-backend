@@ -2,7 +2,6 @@ const checkUrlService = async (oEmbedUrl, urlToCheck, platform) => {
   try {
     const scRes = await fetch(`${oEmbedUrl}?url=${urlToCheck}`);
     const data = await scRes.json();
-    console.log(data);
     return data;
   } catch (err) {
     throw new Error(

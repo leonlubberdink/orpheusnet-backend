@@ -37,8 +37,6 @@ exports.resizeUserImage = (req, res, next) => {
 
   req.file.filename = `${req.body.userName.toLowerCase()}-${Date.now()}.jpeg`;
 
-  console.log(req.file.filename);
-
   sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')
@@ -112,7 +110,6 @@ const createAndSendJwtTokens = async (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  console.log(req.file);
   req.body.userImage = req.file ? req.file.filename : 'default.jpg';
 
   const newUser = await User.create({
@@ -240,7 +237,7 @@ exports.verifyJWT = catchAsync(async (req, res, next) => {
     token,
     process.env.ACCES_TOKEN_SECRET
   );
-  console.log(decoded);
+
   // 3) Check if user still exists
   const currentUser = await User.findById(decoded.id);
 
