@@ -74,9 +74,9 @@ exports.signup = catchAsync(async (req, res, next) => {
   const newUser = await User.create({
     userName: req.body.userName,
     email: req.body.email,
-    userImage: req.body.userImage,
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
+    userImage: req.file.filename,
   });
 
   createAndSendJwtTokens(newUser, 201, res);
@@ -196,7 +196,7 @@ exports.verifyJWT = catchAsync(async (req, res, next) => {
     token,
     process.env.ACCES_TOKEN_SECRET
   );
-  console.log(decoded);
+
   // 3) Check if user still exists
   const currentUser = await User.findById(decoded.id);
 

@@ -1,6 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
+const multerController = require('../controllers/multerController');
 const groupRouter = require('./groupRoutes');
 
 const router = express.Router();
@@ -9,7 +10,13 @@ const router = express.Router();
 router.use('/:userId/groups', groupRouter);
 
 router.get('/refreshToken', authController.refreshAccessToken);
-router.post('/signup', authController.signup);
+
+router.post(
+  '/signup',
+  multerController.uploadUserImage,
+  multerController.resizeUserImage,
+  authController.signup
+);
 router.post('/login', authController.login);
 router.get('/logout', authController.logout);
 
