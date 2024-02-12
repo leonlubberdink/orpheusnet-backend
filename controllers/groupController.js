@@ -8,7 +8,7 @@ exports.startNewGroup = catchAsync(async (req, res, next) => {
   req.body.groupAdmins = [req.user.id];
   req.body.members = [req.user.id];
 
-  req.body.groupImage = req.file ? req.file.filename : 'default.jpg';
+  req.body.groupImage = req.file?.filename || 'default.jpg';
 
   const newGroup = await Group.create(req.body);
 

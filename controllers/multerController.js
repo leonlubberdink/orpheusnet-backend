@@ -18,13 +18,8 @@ const upload = multer({
   fileFilter: multerFilter,
 });
 
-const upload2 = multer({
-  storage: multerStorage,
-  fileFilter: multerFilter,
-});
-
 exports.uploadUserImage = upload.single('userImage');
-exports.uploadGroupImage = upload2.single('groupImage');
+exports.uploadGroupImage = upload.single('groupImage');
 
 exports.resizeUserImage = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
@@ -55,9 +50,3 @@ exports.resizeGroupImage = catchAsync(async (req, res, next) => {
 
   next();
 });
-
-exports.debug = (req, res, next) => {
-  console.log(req.body);
-  console.log(req.file);
-  next();
-};
