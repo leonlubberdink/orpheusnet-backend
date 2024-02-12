@@ -1,6 +1,7 @@
 const express = require('express');
 const groupController = require('../controllers/groupController');
 const authController = require('../controllers/authController');
+const multerController = require('../controllers/multerController');
 const shareRouter = require('./shareRoutes');
 
 // Merge params to be able to see groups per userId getMyGroups
@@ -20,8 +21,8 @@ router
   .route('/startNewGroup')
   .post(
     authController.restrictTo('user'),
-    groupController.uploadGroupImage,
-    groupController.resizeGroupImage,
+    multerController.uploadGroupImage,
+    multerController.resizeGroupImage,
     groupController.startNewGroup
   );
 
