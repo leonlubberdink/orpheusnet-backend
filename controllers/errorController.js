@@ -37,7 +37,6 @@ const handleJWTExpiredError = () => {
 
 // Function that gets triggered on error in development
 const sendErrDev = (err, res) => {
-  console.log(err);
   if (err.name === 'TokenExpiredError') err.statusCode = 401;
   res.status(err.statusCode).json({
     status: err.status,
