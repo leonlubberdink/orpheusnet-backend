@@ -1,50 +1,11 @@
 const { promisify } = require('util');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
-const multer = require('multer');
-const sharp = require('sharp');
 
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
 const catchAsync = require('../utils/catchAsync');
-
-const multerStorage = multer.memoryStorage();
-
-const multerFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image')) {
-    cb(null, true);
-  } else {
-    cb(
-      new AppError(
-        'File is not an image! Please upload image files only.',
-        400
-      ),
-      false
-    );
-  }
-};
-
-const upload = multer({
-  storage: multerStorage,
-  fileFilter: multerFilter,
-});
-
-exports.uploadUserImage = upload.single('userImage');
-
-exports.resizeUserImage = (req, res, next) => {
-  if (!req.file) return next();
-
-  req.file.filename = `${req.body.userName.toLowerCase()}-${Date.now()}.jpeg`;
-
-  sharp(req.file.buffer)
-    .resize(500, 500)
-    .toFormat('jpeg')
-    .jpeg({ quality: 90 })
-    .toFile(`public/img/users/${req.file.filename}`);
-
-  next();
-};
 
 const clearCookie = (res) => {
   if (process.env.NODE_ENV === 'development') {
@@ -120,7 +81,68 @@ exports.signup = catchAsync(async (req, res, next) => {
     userImage: req.file?.filename || 'default.jpg',
   });
 
-  createAndSendJwtTokens(newUser, 201, res);
+  // Generate email verification token
+  const emailVerificationToken = newUser.createEmailVerificationToken();
+
+  // Don't forget to save the user document after modifying it
+  await newUser.save({ validateBeforeSave: false });
+
+  // Create verification URL
+  const verificationUrl = `${req.protocol}://${req.get(
+    'host'
+  )}/api/v1/users/verifyEmail/${emailVerificationToken}`;
+
+  // Sending the email to the user
+  const emailOptions = {
+    email: newUser.email,
+    subject: 'Your email verification link',
+    message: `Please click on the following link to verify your email: ${verificationUrl}`,
+  };
+
+  try {
+    await sendEmail(emailOptions);
+
+    createAndSendJwtTokens(newUser, 201, res);
+  } catch (error) {
+    // In case email couldn't be sent, you might want to handle it, possibly by deleting the user or marking them unverified
+    newUser.emailVerificationToken = undefined;
+    newUser.emailVerificationExpires = undefined;
+    await newUser.save({ validateBeforeSave: false });
+
+    return next(
+      new AppError(
+        'There was an error sending the email. Try again later!',
+        503
+      )
+    );
+  }
+});
+
+exports.verifyEmail = catchAsync(async (req, res, next) => {
+  // 1. Get the token from the URL parameter
+  const token = req.params.token;
+
+  // 2. Hash the token
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+  // 3. Find the user by the hashed token and ensure the token hasn't expired
+  const user = await User.findOne({
+    emailVerificationToken: hashedToken,
+    emailVerificationExpires: { $gt: Date.now() },
+  });
+
+  // 4. If no user is found or token has expired, handle the error
+  if (!user) {
+    return next(new AppError('Token is invalid or has expired', 400));
+  }
+
+  // 5. Update the user's status to mark the email as verified
+  user.emailVerified = true;
+  user.emailVerificationToken = undefined; // Clear the token fields after verification
+  user.emailVerificationExpires = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  res.redirect('http://localhost:5173/isconfirmed');
 });
 
 exports.login = catchAsync(async (req, res, next) => {
