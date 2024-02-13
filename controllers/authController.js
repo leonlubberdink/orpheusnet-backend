@@ -2,6 +2,7 @@ const { promisify } = require('util');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
+const Group = require('../models/groupModel');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
@@ -70,8 +71,48 @@ const createAndSendJwtTokens = async (user, statusCode, res) => {
   });
 };
 
+exports.login = catchAsync(async (req, res, next) => {
+  const { userName, password } = req.body;
+
+  // 1) Check if email and password are sent
+  if (!userName || !password)
+    return next(
+      new AppError('Please provide username or email and password', 400)
+    );
+
+  // 2) Check if user exists && passord is correct
+  let user = await User.findOne({ userName: req.body.userName }).select(
+    '+password'
+  );
+
+  if (!user)
+    user = await User.findOne({ email: req.body.userName }).select('+password');
+
+  if (!user || !(await user.correctPassword(password))) {
+    return next(new AppError('Incorrect username/email or password!', 401));
+  }
+
+  // 3) If all is ok, send token to client
+  createAndSendJwtTokens(user, 200, res);
+});
+
 exports.signup = catchAsync(async (req, res, next) => {
   req.body.userImage = req.file ? req.file.filename : 'default.jpg';
+
+  let group = {};
+
+  if (req.body.groupToSignupFor !== '') {
+    group = await Group.findById(req.body.groupToSignupFor);
+
+    if (!group.invitedUsers.includes(req.body.email)) {
+      return next(
+        new AppError(
+          'Please sign up with the email that received the invite to join the community.',
+          401
+        )
+      );
+    }
+  }
 
   const newUser = await User.create({
     userName: req.body.userName,
@@ -79,7 +120,13 @@ exports.signup = catchAsync(async (req, res, next) => {
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
     userImage: req.file?.filename || 'default.jpg',
+    groups: req.body.groupToSignupFor ? [req.body.groupToSignupFor] : [],
   });
+
+  if (req.body.groupToSignupFor !== '') {
+    group.members.push(newUser._id);
+    await group.save();
+  }
 
   // Generate email verification token
   const emailVerificationToken = newUser.createEmailVerificationToken();
@@ -143,31 +190,6 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   res.redirect('http://localhost:5173/isconfirmed');
-});
-
-exports.login = catchAsync(async (req, res, next) => {
-  const { userName, password } = req.body;
-
-  // 1) Check if email and password are sent
-  if (!userName || !password)
-    return next(
-      new AppError('Please provide username or email and password', 400)
-    );
-
-  // 2) Check if user exists && passord is correct
-  let user = await User.findOne({ userName: req.body.userName }).select(
-    '+password'
-  );
-
-  if (!user)
-    user = await User.findOne({ email: req.body.userName }).select('+password');
-
-  if (!user || !(await user.correctPassword(password))) {
-    return next(new AppError('Incorrect username/email or password!', 401));
-  }
-
-  // 3) If all is ok, send token to client
-  createAndSendJwtTokens(user, 200, res);
 });
 
 exports.logout = catchAsync(async (req, res, next) => {

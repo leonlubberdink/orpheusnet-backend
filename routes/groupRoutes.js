@@ -1,6 +1,7 @@
 const express = require('express');
 const groupController = require('../controllers/groupController');
 const authController = require('../controllers/authController');
+const inviteController = require('../controllers/inviteController');
 const multerController = require('../controllers/multerController');
 const shareRouter = require('./shareRoutes');
 
@@ -25,6 +26,10 @@ router
     multerController.resizeGroupImage,
     groupController.startNewGroup
   );
+
+router
+  .route('/inviteMember/:groupId')
+  .post(authController.restrictTo('user'), inviteController.inviteMember);
 
 // Routes for deleting or editing groups if admin or groupAdmin
 router

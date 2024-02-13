@@ -126,11 +126,6 @@ app.use(express.urlencoded({ extended: true })); // For form data
 // pasre data from cookie
 app.use(cookieParser());
 
-// app.use((req, res, next) => {
-//   console.log(req.cookies);
-//   next();
-// });
-
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
 

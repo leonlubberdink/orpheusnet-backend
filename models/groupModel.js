@@ -16,6 +16,9 @@ const groupSchema = new mongoose.Schema(
       type: String,
       default: 'default.jpg',
     },
+    invitedUsers: {
+      type: Array,
+    },
     groupAdmins: [
       {
         type: mongoose.Schema.Types.ObjectId,
