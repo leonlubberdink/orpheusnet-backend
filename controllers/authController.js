@@ -101,7 +101,10 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   let group = {};
 
-  if (req.body.groupToSignupFor !== '') {
+  console.log(req.body.groupToSignupFor !== undefined);
+
+  if (req.body.groupToSignupFor) {
+    console.log('GROUP');
     group = await Group.findById(req.body.groupToSignupFor);
 
     if (!group.invitedUsers.includes(req.body.email)) {
