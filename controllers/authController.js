@@ -101,7 +101,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   let group = {};
 
-  console.log(req.body.groupToSignupFor !== undefined);
+  // console.log(req.body.groupToSignupFor !== undefined);
 
   if (req.body.groupToSignupFor) {
     console.log('GROUP');
@@ -126,7 +126,7 @@ exports.signup = catchAsync(async (req, res, next) => {
     groups: req.body.groupToSignupFor ? [req.body.groupToSignupFor] : [],
   });
 
-  if (req.body.groupToSignupFor !== '') {
+  if (req.body.groupToSignupFor) {
     group.members.push(newUser._id);
     await group.save();
   }
@@ -158,6 +158,8 @@ exports.signup = catchAsync(async (req, res, next) => {
     newUser.emailVerificationToken = undefined;
     newUser.emailVerificationExpires = undefined;
     await newUser.save({ validateBeforeSave: false });
+
+    console.log(error);
 
     return next(
       new AppError(
