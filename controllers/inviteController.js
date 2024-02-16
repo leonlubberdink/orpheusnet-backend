@@ -45,17 +45,26 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
       )
     );
 
-  // 2) Check if user with username or e-mailaddress exists
+  // 3) Check if user with username or e-mailaddress exists
   let user = await User.findOne({ userName: userNameOrEmail });
   if (!user) user = await User.findOne({ email: userNameOrEmail });
 
-  const group = await Group.findByIdAndUpdate(
-    groupId,
-    { $push: { invitedUsers: userNameOrEmail } },
-    { new: true }
-  );
+  // 3) Check if user is already a member of the group
+  const group = await Group.findById(groupId);
 
-  // If userName does not exist return without info (privacy), send e-mail with invite for signup
+  if (user && group.members.includes(user._id))
+    return next(
+      new AppError(
+        "Good news! The person you're trying to invite is already part of our community!",
+        400
+      )
+    );
+
+  // 4) add user to invitedUsers array
+  group.invitedUsers.push(userNameOrEmail);
+  group.save();
+
+  // 5) If userName does not exist return without info (privacy), send e-mail with invite for signup
   if (!user && validator.isEmail(userNameOrEmail)) {
     // Create verification URL
     const signUpUrl = `${referer}signup/${groupId}`;
@@ -67,7 +76,7 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
     });
   }
 
-  // If user exists, send e-mail with invite to group
+  // 6) If user exists, send e-mail with invite to group
   if (user) sendInviteToExistingUser(user);
 
   res.status(201).json({

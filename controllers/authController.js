@@ -127,7 +127,11 @@ exports.signup = catchAsync(async (req, res, next) => {
   });
 
   if (req.body.groupToSignupFor) {
+    const newIvitesArray = group.invitedUsers.filter(
+      (invite) => invite !== req.body.email
+    );
     group.members.push(newUser._id);
+    group.invitedUsers = newIvitesArray;
     await group.save();
   }
 
