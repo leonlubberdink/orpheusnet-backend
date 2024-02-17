@@ -31,6 +31,10 @@ router
   .route('/inviteMember/:groupId')
   .post(authController.restrictTo('user'), inviteController.inviteMember);
 
+router
+  .route('/respondToInvite')
+  .post(authController.restrictTo('user'), inviteController.respondToInvite);
+
 // Routes for deleting or editing groups if admin or groupAdmin
 router
   .route('/:id')

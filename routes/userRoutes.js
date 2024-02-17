@@ -2,6 +2,7 @@ const express = require('express');
 const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const multerController = require('../controllers/multerController');
+const inviteController = require('../controllers/inviteController');
 const groupRouter = require('./groupRoutes');
 
 const router = express.Router();
@@ -27,6 +28,9 @@ router.get('/verifyEmail/:token', authController.verifyEmail);
 
 //All routes below are protectet with JWT
 router.use(authController.verifyJWT);
+
+//// Should be user route!!!!!!!
+router.route('/invites/:userId').get(inviteController.getUsersInvites);
 
 router.get('/me', userController.getMe, userController.getOneUser);
 

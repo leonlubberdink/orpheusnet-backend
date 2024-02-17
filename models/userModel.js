@@ -37,6 +37,19 @@ const userSchema = new mongoose.Schema({
     minlength: [8, 'A password must contain at least 8 characters'],
     select: false,
   },
+  receivedInvites: [
+    {
+      groupName: {
+        type: String,
+        required: [true, 'Group name must be provided'],
+      },
+      groupId: {
+        type: mongoose.Schema.ObjectId,
+        ref: 'Group',
+        required: [true, 'Group ID must be provided'],
+      },
+    },
+  ],
   passwordConfirm: {
     type: String,
     required: [true, 'Please confirm your password'],
@@ -79,7 +92,7 @@ userSchema.pre('save', async function (next) {
 });
 
 userSchema.pre('save', async function (next) {
-  if (this.isModified('password') || this.isNew) return next();
+  if (!this.isModified('password') || this.isNew) return next();
 
   this.passwordChangedAt = Date.now() - 1000;
   next();

@@ -2,6 +2,7 @@ const validator = require('validator');
 
 const User = require('../models/userModel');
 const Group = require('../models/groupModel');
+
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
@@ -16,7 +17,7 @@ const sendInviteToExistingUser = catchAsync(async (user, communityName) => {
                 the invite once you're there.`,
   };
 
-  await sendEmail(emailOptions);
+  // await sendEmail(emailOptions);
 });
 
 const sendInviteToNewUser = catchAsync(
@@ -30,6 +31,39 @@ const sendInviteToNewUser = catchAsync(
     await sendEmail(emailOptions);
   }
 );
+
+exports.respondToInvite = catchAsync(async (req, res, next) => {
+  const { hasAcceptedInvite, userId, groupId } = req.body;
+
+  // 1) Check if userName or E-mail address was sent
+  if (!hasAcceptedInvite || !userId || !groupId)
+    return next(
+      new AppError(
+        'Invalid request, please provide userId, groupId and hasAcceptedInvite value',
+        400
+      )
+    );
+
+  const invitedUser = await User.findById(userId);
+  const group = await Group.findById(groupId);
+
+  // Always remove invited user from invitedUser
+  group.invitedUsers.pull(invitedUser.email);
+  invitedUser.receivedInvites.pull({ groupId });
+
+  // If invite is accepted, add userid to members array in group and add groupid to groups array in user
+  if (hasAcceptedInvite) {
+    group.members.push(userId);
+    invitedUser.groups.push(groupId);
+  }
+
+  invitedUser.save();
+  group.save();
+
+  res.status(200).json({
+    status: 'success',
+  });
+});
 
 exports.inviteMember = catchAsync(async (req, res, next) => {
   const referer = req.headers['referer'] || req.headers['referrer'];
@@ -61,10 +95,10 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
     );
 
   // 4) add user to invitedUsers array
-  group.invitedUsers.push(userNameOrEmail);
+  group.invitedUsers.push(user.email);
   group.save();
 
-  // 5) If userName does not exist return without info (privacy), send e-mail with invite for signup
+  // ) If userName does not exist return without info (privacy), send e-mail with invite for signup
   if (!user && validator.isEmail(userNameOrEmail)) {
     // Create verification URL
     const signUpUrl = `${referer}signup/${groupId}`;
@@ -77,9 +111,30 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
   }
 
   // 6) If user exists, send e-mail with invite to group
-  if (user) sendInviteToExistingUser(user);
+  if (user) {
+    sendInviteToExistingUser(user);
+    user.receivedInvites.push({
+      groupId: group._id,
+      groupName: group.groupName,
+    });
+    console.log(user);
+    user.save();
+  }
 
   res.status(201).json({
     status: 'success',
+  });
+});
+
+exports.getUsersInvites = catchAsync(async (req, res, next) => {
+  console.log(req.params);
+
+  const user = await User.findById(req.params.userId);
+
+  const { receivedInvites } = user;
+
+  res.status(201).json({
+    status: 'success',
+    receivedInvites,
   });
 });
