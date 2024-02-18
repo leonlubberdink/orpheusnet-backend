@@ -101,10 +101,7 @@ exports.signup = catchAsync(async (req, res, next) => {
 
   let group = {};
 
-  // console.log(req.body.groupToSignupFor !== undefined);
-
   if (req.body.groupToSignupFor) {
-    console.log('GROUP');
     group = await Group.findById(req.body.groupToSignupFor);
 
     if (!group.invitedUsers.includes(req.body.email)) {
@@ -163,8 +160,6 @@ exports.signup = catchAsync(async (req, res, next) => {
     newUser.emailVerificationExpires = undefined;
     await newUser.save({ validateBeforeSave: false });
 
-    console.log(error);
-
     return next(
       new AppError(
         'There was an error sending the email. Try again later!',
@@ -198,7 +193,12 @@ exports.verifyEmail = catchAsync(async (req, res, next) => {
   user.emailVerificationExpires = undefined;
   await user.save({ validateBeforeSave: false });
 
-  res.redirect('http://localhost:5173/isconfirmed');
+  const url =
+    process.env.NODE_ENV === 'development'
+      ? process.env.LOCALHOST
+      : process.env.APP_DOMAIN;
+
+  res.redirect(`${url}/isconfirmed`);
 });
 
 exports.logout = catchAsync(async (req, res, next) => {
@@ -327,6 +327,8 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on posted email
   const user = await User.findOne({ email: req.body.email });
 
+  const referer = req.headers['referer'] || req.headers['referrer'];
+
   if (!user)
     return next(new AppError('There is no user with that email address.', 404));
 
@@ -335,9 +337,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   await user.save({ validateBeforeSave: false });
 
   // 3) Send token to user's email
-  const resetURL = `${req.protocol}://${req.get(
-    'host'
-  )}/api/v1/users/resetPassword/${resetToken}`;
+  const resetURL = `${referer}pwreset/${resetToken}`;
 
   const message = `Forgot your password? Use this link to create a new Password: ${resetURL}.\nIf you didn't forget your password, please ignore this email.`;
 
@@ -372,6 +372,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
 
   // 2) If token has not expired and user exists, set new Password
   const user = await User.findOne({ passwordResetToken: hashedToken });
+
   if (!user) {
     return next(new AppError('Invalid token!', 401));
   }

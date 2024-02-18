@@ -36,7 +36,7 @@ if (process.env.NODE_ENV === 'development') {
 
   corsOptions = {
     origin: process.env.LOCALHOST,
-    methods: 'GET, POST, PUT, DELETE',
+    methods: 'GET, POST, PUT,PATCH, DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
   };
@@ -45,7 +45,7 @@ if (process.env.NODE_ENV === 'development') {
 if (process.env.NODE_ENV === 'production') {
   corsOptions = {
     origin: process.env.APP_DOMAIN,
-    methods: 'GET, POST, PUT, DELETE',
+    methods: 'GET, POST, PUT, PATCH, DELETE',
     credentials: true,
     optionsSuccessStatus: 204,
   };

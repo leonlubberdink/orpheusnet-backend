@@ -8,7 +8,6 @@ const AppError = require('../utils/appError');
 const sendEmail = require('../utils/email');
 
 const sendInviteToExistingUser = catchAsync(async (user, communityName) => {
-  console.log('EXISTING USER');
   const emailOptions = {
     email: user.email,
     subject: 'You got invited to join a community on Orpheus.net',
@@ -17,7 +16,7 @@ const sendInviteToExistingUser = catchAsync(async (user, communityName) => {
                 the invite once you're there.`,
   };
 
-  // await sendEmail(emailOptions);
+  await sendEmail(emailOptions);
 });
 
 const sendInviteToNewUser = catchAsync(
@@ -112,12 +111,11 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
 
   // 6) If user exists, send e-mail with invite to group
   if (user) {
-    sendInviteToExistingUser(user);
+    sendInviteToExistingUser(user, group.groupName);
     user.receivedInvites.push({
       groupId: group._id,
       groupName: group.groupName,
     });
-    console.log(user);
     user.save();
   }
 
@@ -127,8 +125,6 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
 });
 
 exports.getUsersInvites = catchAsync(async (req, res, next) => {
-  console.log(req.params);
-
   const user = await User.findById(req.params.userId);
 
   const { receivedInvites } = user;
