@@ -45,7 +45,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   }
 
   // 2) Filtered out unallowed changes (i.e. role)
-  const allowedChanges = ['userName', 'email'];
+  const allowedChanges = ['email'];
 
   const filteredBody = filterRequest(req.body, ...allowedChanges);
 
