@@ -31,11 +31,15 @@ router.use(authController.verifyJWT);
 router.route('/invites/:userId').get(inviteController.getUsersInvites);
 
 router.get('/me', userController.getMe, userController.getOneUser);
-
 router.patch('/updateMyPassword', authController.updateMyPassword);
-
 router.patch('/updateMe', userController.updateMe);
 router.delete('/deleteMe', userController.deleteMe);
+router.patch(
+  '/updateMyImage',
+  multerController.uploadUserImage,
+  multerController.resizeUserImage,
+  userController.updateMyImage
+);
 
 //All routes below are restricted to Admin users
 router.use(authController.restrictTo('admin'));
