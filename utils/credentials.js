@@ -6,9 +6,11 @@ const allowedOrigins = [
 
 const credentials = (req, res, next) => {
   const { origin } = req.headers;
+  console.log('ORIGIN: ', origin);
   if (allowedOrigins.includes(origin)) {
     res.header('Access-Control-Allow-Credentials', true);
   }
+  console.log('HEADER: ', res.header('Access-Control-Allow-Credentials'));
   next();
 };
 
