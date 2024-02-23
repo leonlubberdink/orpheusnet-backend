@@ -27,36 +27,37 @@ jobs:
       - name: Go to folder
         run: cd /home/leon/projects/orpheusnet/_work/orpheusnet-backend/orpheusnet-backend
 
-      - name: Set environment variables and Restart pm2 process
+      - name: Restart pm2 process with Environment Variables
         run: |
-          export NODE_ENV=development
-          export PORT=7999
-          export SSL_PORT=7998
-          export LOCALHOST=http://localhost:5173
-          export LOCALHOST_2=http://localhost:3000
-          export APP_DOMAIN=https://orpheusnet.com
-          export PUB_KEY=${{ secrets.PUB_KEY }}
-          export PRIV_KEY=${{ secrets.PRIV_KEY }}
-          export DATABASE=${{ secrets.DATABASE }}
-          export DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
-          export DATABASE_NAME=orpheus1
-          export JWT_SECRET=${{ secrets.JWT_SECRET }}
-          export JWT_EXPIRES_IN=1d
-          export JWT_COOKIE_EXPIRES_IN=1
-          export ACCES_TOKEN_SECRET=${{ secrets.ACCES_TOKEN_SECRET }}
-          export ACCES_TOKEN_EXPIRES_IN=300s
-          export DEV_EMAIL_USERNAME=${{ secrets.DEV_EMAIL_USERNAME }}
-          export DEV_EMAIL_PASSWORD=${{ secrets.DEV_EMAIL_PASSWORD }}
-          export DEV_EMAIL_HOST=sandbox.smtp.mailtrap.io
-          export DEV_EMAIL_PORT=2525
-          export EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }}
-          export EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
-          export EMAIL_HOST=sandbox.smtp.mailtrap.io
-          export EMAIL_PORT=2525
-          export SOUNDCLOUD_OEMBED_URL=https://soundcloud.com/oembed?format=json&url=
-          export SPOTIFY_OEMBED_URL=https://open.spotify.com/oembed
-          export SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}
           pm2 restart 0
+        env:
+          NODE_ENV: development
+          PORT: 7999
+          SSL_PORT: 7998
+          LOCALHOST: http://localhost:5173
+          LOCALHOST_2: http://localhost:3000
+          APP_DOMAIN: https://orpheusnet.com
+          PUB_KEY: ${{ secrets.PUB_KEY }}
+          PRIV_KEY: ${{ secrets.PRIV_KEY }}
+          DATABASE: ${{ secrets.DATABASE }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_NAME: orpheus1
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: 1d
+          JWT_COOKIE_EXPIRES_IN: 1
+          ACCES_TOKEN_SECRET: ${{ secrets.ACCES_TOKEN_SECRET }}
+          ACCES_TOKEN_EXPIRES_IN: 300s
+          DEV_EMAIL_USERNAME: ${{ secrets.DEV_EMAIL_USERNAME }}
+          DEV_EMAIL_PASSWORD: ${{ secrets.DEV_EMAIL_PASSWORD }}
+          DEV_EMAIL_HOST: sandbox.smtp.mailtrap.io
+          DEV_EMAIL_PORT: 2525
+          EMAIL_USERNAME: ${{ secrets.EMAIL_USERNAME }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_HOST: sandbox.smtp.mailtrap.io
+          EMAIL_PORT: 2525
+          SOUNDCLOUD_OEMBED_URL: https://soundcloud.com/oembed?format=json&url=
+          SPOTIFY_OEMBED_URL: https://open.spotify.com/oembed
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
         shell: bash
 
       - name: Save pm2 process list
