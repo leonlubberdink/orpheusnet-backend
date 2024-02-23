@@ -40,8 +40,6 @@ const checkUrlService = async (oEmbedUrl, urlToCheck, platform) => {
       const shareData =
         type === 'album' ? await fetchAlbum(id) : await fetchSong(id);
 
-      console.log(urlToCheck);
-
       return {
         author_name: shareData.artists[0].name,
         title: shareData.name,
@@ -49,7 +47,6 @@ const checkUrlService = async (oEmbedUrl, urlToCheck, platform) => {
       };
     }
   } catch (err) {
-    console.log(err);
     throw new Error(
       `This is not a valid ${platform} url. Please note that protocol must be included (https://), and check if url is correct.`
     );

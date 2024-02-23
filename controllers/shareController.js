@@ -84,14 +84,10 @@ exports.createShare = catchAsync(async (req, res, next) => {
       };
   }
 
-  console.log(shareObject);
-
   // if url is invalid, but format was provided, put format in object.
   shareObject = { ...shareObject, format };
 
   const newShare = await Share.create(shareObject);
-
-  console.log(newShare);
 
   res.status(201).json({
     status: 'success',

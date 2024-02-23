@@ -64,8 +64,6 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 exports.updateMyImage = catchAsync(async (req, res) => {
   req.body.userImage = req.file ? req.file.filename : 'default.jpg';
 
-  console.log(req.file);
-
   await User.findByIdAndUpdate(req.user.id, { userImage: req.body.userImage });
 
   res.status(204).json({

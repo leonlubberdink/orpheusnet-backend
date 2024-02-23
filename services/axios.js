@@ -41,8 +41,6 @@ apiClient.interceptors.response.use(undefined, async (error) => {
   // Check if we need to refresh the token
   const originalRequest = error.config;
 
-  // console.log(error.response.data);
-
   if (
     error.response.status === 401 &&
     (error.response.data.error.message === 'The access token expired' ||
