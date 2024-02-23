@@ -1,24 +1,6 @@
-# This is a basic workflow to help you get started with Actions
-
-name: CI
-
-# Controls when the workflow will run
-on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
-  push:
-    branches: ["master"]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: self-hosted
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
@@ -32,8 +14,37 @@ jobs:
       - name: Go to folder
         run: cd /home/leon/projects/orpheusnet/_work/orpheusnet-backend/orpheusnet-backend
 
-      - name: Restart pm2 process
-        run: pm2 restart 0
+      - name: Set environment variables and Restart pm2 process
+        run: |
+          export NODE_ENV=development
+          export PORT=7999
+          export SSL_PORT=7998
+          export LOCALHOST=http://localhost:5173
+          export LOCALHOST_2=http://localhost:3000
+          export APP_DOMAIN=https://orpheusnet.com
+          export PUB_KEY=${{ secrets.PUB_KEY }}
+          export PRIV_KEY=${{ secrets.PRIV_KEY }}
+          export DATABASE=${{ secrets.DATABASE }}
+          export DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+          export DATABASE_NAME=orpheus1
+          export JWT_SECRET=${{ secrets.JWT_SECRET }}
+          export JWT_EXPIRES_IN=1d
+          export JWT_COOKIE_EXPIRES_IN=1
+          export ACCES_TOKEN_SECRET=${{ secrets.ACCES_TOKEN_SECRET }}
+          export ACCES_TOKEN_EXPIRES_IN=300s
+          export DEV_EMAIL_USERNAME=${{ secrets.DEV_EMAIL_USERNAME }}
+          export DEV_EMAIL_PASSWORD=${{ secrets.DEV_EMAIL_PASSWORD }}
+          export DEV_EMAIL_HOST=sandbox.smtp.mailtrap.io
+          export DEV_EMAIL_PORT=2525
+          export EMAIL_USERNAME=${{ secrets.EMAIL_USERNAME }}
+          export EMAIL_PASSWORD=${{ secrets.EMAIL_PASSWORD }}
+          export EMAIL_HOST=sandbox.smtp.mailtrap.io
+          export EMAIL_PORT=2525
+          export SOUNDCLOUD_OEMBED_URL=https://soundcloud.com/oembed?format=json&url=
+          export SPOTIFY_OEMBED_URL=https://open.spotify.com/oembed
+          export SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}
+          pm2 restart 0
+        shell: bash
 
-      - name: Save pm2 process liist
+      - name: Save pm2 process list
         run: pm2 save
