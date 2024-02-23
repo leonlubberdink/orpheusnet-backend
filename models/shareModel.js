@@ -5,7 +5,6 @@ const shareSchema = new mongoose.Schema({
   shareUrl: {
     type: String,
     required: [true, 'Please provide a url of the music you want to share.'],
-    lowercase: true,
     validate: [
       {
         validator: (value) =>

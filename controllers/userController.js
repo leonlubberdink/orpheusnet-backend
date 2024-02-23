@@ -78,6 +78,20 @@ exports.updateMyImage = catchAsync(async (req, res) => {
 exports.deleteMe = catchAsync(async (req, res) => {
   await User.findByIdAndUpdate(req.user.id, { active: false });
 
+  if (process.env.NODE_ENV === 'development') {
+    res.clearCookie('jwt', {
+      httpOnly: true,
+    });
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      sameSite: 'None',
+      secure: true,
+    });
+  }
+
   res.status(204).json({
     status: 'success',
     data: null,
