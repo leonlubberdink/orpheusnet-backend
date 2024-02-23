@@ -54,6 +54,8 @@ if (process.env.NODE_ENV === 'production') {
 // MIDDLEWARES FOR PRODUCTION ENV
 // Serving static files
 // Serve static files from these directories
+app.use(express.static(path.join(__dirname, 'public')));
+app.use('/public/img', express.static(__dirname + '/public/img/'));
 app.use('/group-img', express.static(__dirname + '/public/img/groups'));
 app.use('/user-img', express.static(__dirname + '/public/img/users'));
 
@@ -69,27 +71,11 @@ app.use(
         defaultSrc: ["'self'", 'data:', 'blob:', 'https:', 'ws:'],
         baseUri: ["'self'"],
         fontSrc: ["'self'", 'https:', 'data:'],
-        scriptSrc: [
-          "'self'",
-          'https:',
-          'http:',
-          'blob:',
-          'https://*.mapbox.com',
-          'https://js.stripe.com',
-          'https://m.stripe.network',
-        ],
-        frameSrc: ["'self'", 'https://js.stripe.com'],
+        scriptSrc: ["'self'", 'https:', 'http:', 'blob:'],
+        frameSrc: ["'self'"],
         objectSrc: ["'none'"],
         styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
-        workerSrc: [
-          "'self'",
-          'data:',
-          'blob:',
-          'https://*.tiles.mapbox.com',
-          'https://api.mapbox.com',
-          'https://events.mapbox.com',
-          'https://m.stripe.network',
-        ],
+        workerSrc: ["'self'", 'data:', 'blob:'],
         childSrc: ["'self'", 'blob:'],
         imgSrc: ["'self'", 'data:', 'blob:'],
         formAction: ["'self'"],
@@ -98,9 +84,6 @@ app.use(
           "'unsafe-inline'",
           'data:',
           'blob:',
-          'https://*.stripe.com',
-          'https://*.mapbox.com',
-          'https://bundle.js:*',
           'ws://localhost:*/',
         ],
         upgradeInsecureRequests: [],
