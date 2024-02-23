@@ -1,5 +1,8 @@
+.github/workflows/main_back.yml
 node_modules
 orpheusnet.code-workspace
+dotenv.zip
 .prettierrc
 .env
+.env_dev
 .env_prod
