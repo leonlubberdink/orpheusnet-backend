@@ -74,6 +74,7 @@ app.use(
           'ws://localhost:*/',
           'https://orpheusnet.com',
           'https://orpheusnet.com:7998',
+          'https://orpheusnet.com:7998/*',
         ],
         upgradeInsecureRequests: [],
       },
