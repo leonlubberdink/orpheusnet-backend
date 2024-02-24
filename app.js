@@ -44,8 +44,16 @@ if (process.env.NODE_ENV === 'production') {
 // Serve static files from these directories
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/public/img', express.static(__dirname + '/public/img/'));
-app.use('/group-img', express.static(__dirname + '/public/img/groups'));
-app.use('/user-img', express.static(__dirname + '/public/img/users'));
+app.use(
+  '/group-img',
+  cors(corsOptionsDelegate),
+  express.static(__dirname + '/public/img/groups')
+);
+app.use(
+  '/user-img',
+  cors(corsOptionsDelegate),
+  express.static(__dirname + '/public/img/users')
+);
 
 ///USE CORS
 app.use(cors(corsOptionsDelegate));

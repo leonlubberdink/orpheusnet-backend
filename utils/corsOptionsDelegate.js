@@ -4,16 +4,6 @@ const allowedOrigins = [
   process.env.APP_DOMAIN,
 ];
 
-// const credentials = (req, res, next) => {
-//   const { origin } = req.headers;
-//   console.log('ORIGIN: ', origin);
-//   if (allowedOrigins.includes(origin)) {
-//     res.header('Access-Control-Allow-Credentials', true);
-//   }
-//   console.log('HEADER: ', res.header('Access-Control-Allow-Credentials'));
-//   next();
-// };
-
 const corsOptionsDelegate = function (req, callback) {
   var corsOptions;
   let isDomainAllowed = allowedOrigins.includes(req.header('Origin'));
