@@ -76,8 +76,8 @@ app.use(
           "'self'",
           'data:',
           'blob:',
-          'https://orpheusnet.com:7998/user-img/', // Add this line
-          'https://orpheusnet.com:7998',
+          'https://orpheusnet.com:7999/user-img/', // Add this line
+          'https://orpheusnet.com:7999',
         ],
         formAction: ["'self'"],
         connectSrc: [
@@ -87,8 +87,8 @@ app.use(
           'blob:',
           'ws://localhost:*/',
           'https://orpheusnet.com',
-          'https://orpheusnet.com:7998',
-          'https://orpheusnet.com:7998/*',
+          'https://orpheusnet.com:7999',
+          'https://orpheusnet.com:7999/*',
         ],
         upgradeInsecureRequests: [],
       },
