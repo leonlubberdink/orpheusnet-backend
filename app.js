@@ -64,7 +64,13 @@ app.use(
         styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
         workerSrc: ["'self'", 'data:', 'blob:'],
         childSrc: ["'self'", 'blob:'],
-        imgSrc: ["'self'", 'data:', 'blob:'],
+        imgSrc: [
+          "'self'",
+          'data:',
+          'blob:',
+          'https://orpheusnet.com:7998/user-img/', // Add this line
+          'https://orpheusnet.com:7998',
+        ],
         formAction: ["'self'"],
         connectSrc: [
           "'self'",
