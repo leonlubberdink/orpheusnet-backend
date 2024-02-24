@@ -14,7 +14,7 @@ const cors = require('cors');
 
 //Require custom modules
 const AppError = require('./utils/appError');
-const credentials = require('./utils/credentials');
+const corsOptionsDelegate = require('./utils/corsOptionsDelegate');
 const globalErrorHandler = require('./controllers/errorController');
 const userRouter = require('./routes/userRoutes');
 const shareRouter = require('./routes/shareRoutes');
@@ -34,23 +34,23 @@ if (process.env.NODE_ENV === 'development') {
   // Morgan Middleware for logging request info to console.
   app.use(morgan('dev'));
 
-  corsOptions = {
-    origin: process.env.LOCALHOST,
-    methods: 'GET, POST, PUT,PATCH, DELETE',
-    credentials: true,
-    optionsSuccessStatus: 204,
-  };
+  // corsOptions = {
+  //   origin: process.env.LOCALHOST,
+  //   methods: 'GET, POST, PUT,PATCH, DELETE',
+  //   credentials: true,
+  //   optionsSuccessStatus: 204,
+  // };
 }
 
 if (process.env.NODE_ENV === 'production') {
   console.log('PRODUCTION ENVIRONMENT');
-  console.log(process.env.APP_DOMAIN);
-  corsOptions = {
-    origin: process.env.APP_DOMAIN,
-    methods: 'GET, POST, PUT, PATCH, DELETE',
-    credentials: true,
-    optionsSuccessStatus: 204,
-  };
+  // console.log(process.env.APP_DOMAIN);
+  // corsOptions = {
+  //   origin: process.env.APP_DOMAIN,
+  //   methods: 'GET, POST, PUT, PATCH, DELETE',
+  //   credentials: true,
+  //   optionsSuccessStatus: 204,
+  // };
 }
 
 // MIDDLEWARES FOR PRODUCTION ENV
@@ -62,8 +62,7 @@ app.use('/group-img', express.static(__dirname + '/public/img/groups'));
 app.use('/user-img', express.static(__dirname + '/public/img/users'));
 
 ///USE CORS
-app.use(credentials);
-app.use(cors(corsOptions));
+app.use(cors(corsOptionsDelegate));
 
 // Set security https headers
 app.use(
