@@ -114,6 +114,11 @@ app.use('/api/v1/users', userRouter);
 app.use('/api/v1/shares', shareRouter);
 app.use('/api/v1/groups', groupRouter);
 
+// Serve React app for any other route not handled by API routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 // Create AppError wenn non existing route is used
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
