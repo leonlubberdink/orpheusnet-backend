@@ -5,31 +5,16 @@ const Group = require('../models/groupModel');
 
 const catchAsync = require('../utils/catchAsync');
 const AppError = require('../utils/appError');
-const sendEmail = require('../utils/email');
+const Email = require('../utils/email');
 
-const sendInviteToExistingUser = catchAsync(async (user, communityName) => {
-  const emailOptions = {
-    email: user.email,
-    subject: 'You got invited to join a community on Orpheus.net',
-    message: `You've been invited to join a community on Orpheusnet: ${communityName}!\n\n
-                To accept the invitation, please log in to your Orpheusnet account and accept 
-                the invite once you're there.`,
-  };
-
-  await sendEmail(emailOptions);
+const sendInviteToExistingUser = catchAsync(async ({ user, communityName }) => {
+  await new Email(user, '', communityName).sendinviteExistingUser();
 });
 
-const sendInviteToNewUser = catchAsync(
-  async ({ userNameOrEmail, signUpUrl, communityName }) => {
-    const emailOptions = {
-      email: userNameOrEmail,
-      subject: 'You got invited to join a community on Orpheus.net',
-      message: `Someone invited you to join their community "${communityName}".\n\nPlease click on the following link to accept their invitation, create an Orpheusnet account, and join their community: ${signUpUrl}`,
-    };
-
-    await sendEmail(emailOptions);
-  }
-);
+const sendInviteToNewUser = catchAsync(async ({ user, url, communityName }) => {
+  console.log(user);
+  await new Email(user, url, communityName).sendInviteNewUser();
+});
 
 exports.respondToInvite = catchAsync(async (req, res, next) => {
   const { hasAcceptedInvite, userId, groupId } = req.body;
@@ -70,7 +55,7 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
   const { user: userNameOrEmail } = req.body;
 
   // 1) Check if userName or E-mail address was sent
-  if (!req.body.user)
+  if (!userNameOrEmail)
     return next(
       new AppError(
         'Please provide username or email address from the member you want to invite',
@@ -94,7 +79,7 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
     );
 
   // 4) add user to invitedUsers array
-  group.invitedUsers.push(user.email);
+  group.invitedUsers.push(user ? user.email : userNameOrEmail);
   group.save();
 
   // ) If userName does not exist return without info (privacy), send e-mail with invite for signup
@@ -103,15 +88,15 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
     const signUpUrl = `${referer}signup/${groupId}`;
 
     sendInviteToNewUser({
-      userNameOrEmail,
-      signUpUrl,
+      user: { email: userNameOrEmail },
+      url: signUpUrl,
       communityName: group.groupName,
     });
   }
 
   // 6) If user exists, send e-mail with invite to group
   if (user) {
-    sendInviteToExistingUser(user, group.groupName);
+    sendInviteToExistingUser({ user, communityName: group.groupName });
     user.receivedInvites.push({
       groupId: group._id,
       groupName: group.groupName,

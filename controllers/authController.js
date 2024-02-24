@@ -5,8 +5,8 @@ const jwt = require('jsonwebtoken');
 const Group = require('../models/groupModel');
 const User = require('../models/userModel');
 const AppError = require('../utils/appError');
-const sendEmail = require('../utils/email');
 const catchAsync = require('../utils/catchAsync');
+const Email = require('../utils/email');
 
 const clearCookie = (res) => {
   if (process.env.NODE_ENV === 'development') {
@@ -143,30 +143,9 @@ exports.signup = catchAsync(async (req, res, next) => {
     'host'
   )}/api/v1/users/verifyEmail/${emailVerificationToken}`;
 
-  // Sending the email to the user
-  const emailOptions = {
-    email: newUser.email,
-    subject: 'Your email verification link',
-    message: `Please click on the following link to verify your email: ${verificationUrl}`,
-  };
+  await new Email(req.body, verificationUrl, '').sendConfirmAccount();
 
-  try {
-    await sendEmail(emailOptions);
-
-    createAndSendJwtTokens(newUser, 201, res);
-  } catch (error) {
-    // In case email couldn't be sent, you might want to handle it, possibly by deleting the user or marking them unverified
-    newUser.emailVerificationToken = undefined;
-    newUser.emailVerificationExpires = undefined;
-    await newUser.save({ validateBeforeSave: false });
-
-    return next(
-      new AppError(
-        'There was an error sending the email. Try again later!',
-        503
-      )
-    );
-  }
+  createAndSendJwtTokens(newUser, 201, res);
 });
 
 exports.verifyEmail = catchAsync(async (req, res, next) => {
@@ -339,14 +318,8 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 3) Send token to user's email
   const resetURL = `${referer}pwreset/${resetToken}`;
 
-  const message = `Forgot your password? Use this link to create a new Password: ${resetURL}.\nIf you didn't forget your password, please ignore this email.`;
-
   try {
-    await sendEmail({
-      email: user.email,
-      subject: 'Your password rest token (only valid for 10 minutes)',
-      message,
-    });
+    new Email(user, resetURL, '').sendForgotPassword();
 
     res.status(200).json({
       status: 'success',

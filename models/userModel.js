@@ -12,7 +12,6 @@ const userSchema = new mongoose.Schema({
       'Username already in use, please choose a different username',
     ],
     trim: true,
-    lowercase: true,
   },
   email: {
     type: String,
