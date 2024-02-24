@@ -72,6 +72,7 @@ app.use(
           'data:',
           'blob:',
           'ws://localhost:*/',
+          'https://orpheusnet.com:7998',
         ],
         upgradeInsecureRequests: [],
       },
