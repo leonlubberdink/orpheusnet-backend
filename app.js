@@ -58,43 +58,43 @@ app.use(
 ///USE CORS
 app.use(cors(corsOptionsDelegate));
 
-// Set security https headers
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'", 'data:', 'blob:', 'https:', 'ws:'],
-        baseUri: ["'self'"],
-        fontSrc: ["'self'", 'https:', 'data:'],
-        scriptSrc: ["'self'", 'https:', 'http:', 'blob:'],
-        frameSrc: ["'self'"],
-        objectSrc: ["'none'"],
-        styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
-        workerSrc: ["'self'", 'data:', 'blob:'],
-        childSrc: ["'self'", 'blob:'],
-        imgSrc: [
-          "'self'",
-          'data:',
-          'blob:',
-          'https://orpheusnet.com:7999/user-img/', // Add this line
-          'https://orpheusnet.com:7999',
-        ],
-        formAction: ["'self'"],
-        connectSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          'data:',
-          'blob:',
-          'ws://localhost:*/',
-          'https://orpheusnet.com',
-          'https://orpheusnet.com:7999',
-          'https://orpheusnet.com:7999/*',
-        ],
-        upgradeInsecureRequests: [],
-      },
-    },
-  })
-);
+// // Set security https headers
+// app.use(
+//   helmet({
+//     contentSecurityPolicy: {
+//       directives: {
+//         defaultSrc: ["'self'", 'data:', 'blob:', 'https:', 'ws:'],
+//         baseUri: ["'self'"],
+//         fontSrc: ["'self'", 'https:', 'data:'],
+//         scriptSrc: ["'self'", 'https:', 'http:', 'blob:'],
+//         frameSrc: ["'self'"],
+//         objectSrc: ["'none'"],
+//         styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
+//         workerSrc: ["'self'", 'data:', 'blob:'],
+//         childSrc: ["'self'", 'blob:'],
+//         imgSrc: [
+//           "'self'",
+//           'data:',
+//           'blob:',
+//           'https://orpheusnet.com:7999/user-img/', // Add this line
+//           'https://orpheusnet.com:7999',
+//         ],
+//         formAction: ["'self'"],
+//         connectSrc: [
+//           "'self'",
+//           "'unsafe-inline'",
+//           'data:',
+//           'blob:',
+//           'ws://localhost:*/',
+//           'https://orpheusnet.com',
+//           'https://orpheusnet.com:7999',
+//           'https://orpheusnet.com:7999/*',
+//         ],
+//         upgradeInsecureRequests: [],
+//       },
+//     },
+//   })
+// );
 
 // Rate limiting
 const limiter = rateLimit({
