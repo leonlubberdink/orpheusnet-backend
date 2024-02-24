@@ -44,57 +44,40 @@ if (process.env.NODE_ENV === 'production') {
 // Serve static files from these directories
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/public/img', express.static(__dirname + '/public/img/'));
-app.use(
-  '/group-img',
-  cors(corsOptionsDelegate),
-  express.static(__dirname + '/public/img/groups')
-);
-app.use(
-  '/user-img',
-  cors(corsOptionsDelegate),
-  express.static(__dirname + '/public/img/users')
-);
+app.use('/group-img', express.static(__dirname + '/public/img/groups'));
+app.use('/user-img', express.static(__dirname + '/public/img/users'));
 
 ///USE CORS
 app.use(cors(corsOptionsDelegate));
 
-// // Set security https headers
-// app.use(
-//   helmet({
-//     contentSecurityPolicy: {
-//       directives: {
-//         defaultSrc: ["'self'", 'data:', 'blob:', 'https:', 'ws:'],
-//         baseUri: ["'self'"],
-//         fontSrc: ["'self'", 'https:', 'data:'],
-//         scriptSrc: ["'self'", 'https:', 'http:', 'blob:'],
-//         frameSrc: ["'self'"],
-//         objectSrc: ["'none'"],
-//         styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
-//         workerSrc: ["'self'", 'data:', 'blob:'],
-//         childSrc: ["'self'", 'blob:'],
-//         imgSrc: [
-//           "'self'",
-//           'data:',
-//           'blob:',
-//           'https://orpheusnet.com:7999/user-img/', // Add this line
-//           'https://orpheusnet.com:7999',
-//         ],
-//         formAction: ["'self'"],
-//         connectSrc: [
-//           "'self'",
-//           "'unsafe-inline'",
-//           'data:',
-//           'blob:',
-//           'ws://localhost:*/',
-//           'https://orpheusnet.com',
-//           'https://orpheusnet.com:7999',
-//           'https://orpheusnet.com:7999/*',
-//         ],
-//         upgradeInsecureRequests: [],
-//       },
-//     },
-//   })
-// );
+// Set security https headers
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'", 'data:', 'blob:', 'https:', 'ws:'],
+        baseUri: ["'self'"],
+        fontSrc: ["'self'", 'https:', 'data:'],
+        scriptSrc: ["'self'", 'https:', 'http:', 'blob:'],
+        frameSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        styleSrc: ["'self'", 'https:', "'unsafe-inline'"],
+        workerSrc: ["'self'", 'data:', 'blob:'],
+        childSrc: ["'self'", 'blob:'],
+        imgSrc: ["'self'", 'data:', 'blob:'],
+        formAction: ["'self'"],
+        connectSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          'data:',
+          'blob:',
+          'ws://localhost:*/',
+        ],
+        upgradeInsecureRequests: [],
+      },
+    },
+  })
+);
 
 // Rate limiting
 const limiter = rateLimit({

@@ -48,6 +48,7 @@ const sendErrDev = (err, res) => {
 
 // Function that gets triggered on error in production
 const sendErrProd = (err, res) => {
+  console.log(err);
   //Operational, trusted error: send message to client
   if (err.isOperational)
     return res.status(err.statusCode).json({
