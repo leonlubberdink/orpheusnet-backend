@@ -72,8 +72,8 @@ app.use(
           'data:',
           'blob:',
           'ws://localhost:*/',
-          // Add the domain you want to allow connections to
           'https://orpheusnet.com',
+          'https://orpheusnet.com:7998',
         ],
         upgradeInsecureRequests: [],
       },
