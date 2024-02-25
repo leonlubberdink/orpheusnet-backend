@@ -2,13 +2,15 @@ const { fetchAlbum, fetchSong } = require('./spotifyServices');
 
 function extractAlbumOrTrackId(type, url) {
   const startIndex = url.indexOf(`${type}/`) + `${type}/`.length;
-  const endIndex = url.indexOf('&utm');
+  const endIndex = url.indexOf('?');
   return url.substring(startIndex, endIndex);
 }
 
 const checkUrlService = async (oEmbedUrl, urlToCheck, platform) => {
   let res;
   let type = '';
+
+  console.log(urlToCheck);
 
   try {
     if (platform.toLowerCase() === 'soundcloud') {
@@ -19,7 +21,7 @@ const checkUrlService = async (oEmbedUrl, urlToCheck, platform) => {
     }
 
     if (platform.toLowerCase() === 'spotify') {
-      res = await fetch(`${oEmbedUrl}${urlToCheck}`);
+      res = await fetch(`${oEmbedUrl}?url=${urlToCheck}`);
 
       const data = await res.json();
 

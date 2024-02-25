@@ -67,10 +67,10 @@ exports.createShare = catchAsync(async (req, res, next) => {
       };
   }
 
-  if (req.body.url.includes('spotify')) {
+  if (shareUrl.includes('spotify')) {
     oEmbedUrl = process.env.SPOTIFY_OEMBED_URL;
     platform = 'Spotify';
-    const urlInfo = await checkUrlService(oEmbedUrl, req.body.url, platform);
+    const urlInfo = await checkUrlService(oEmbedUrl, shareUrl, platform);
 
     if (urlInfo)
       shareObject = {

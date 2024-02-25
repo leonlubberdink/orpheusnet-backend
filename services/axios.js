@@ -26,7 +26,7 @@ async function refreshAccessToken() {
     accessToken = response.data.access_token;
     return accessToken;
   } catch (error) {
-    console.error('Error refreshing access token:', error);
+    console.error('Error refreshing access token:', error.response);
     throw error;
   }
 }

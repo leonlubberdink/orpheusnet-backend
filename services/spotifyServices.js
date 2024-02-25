@@ -2,6 +2,8 @@ const apiClient = require('./axios');
 
 // Function to make the initial request
 exports.fetchAlbum = async (id) => {
+  console.log(id);
+  console.log(`${process.env.SPOTIFY_ALBUMS_API}/${id}`);
   try {
     const response = await apiClient.get(
       `${process.env.SPOTIFY_ALBUMS_API}/${id}`
