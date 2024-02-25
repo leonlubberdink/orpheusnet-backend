@@ -44,7 +44,6 @@ if (process.env.NODE_ENV === 'production') {
 
   httpsServer = https.createServer(options, app);
 
-  // Define your routes and middleware here
   httpsServer.listen(httpsPort, () => {
     console.log(`Server is running on port ${httpsPort}`);
   });
