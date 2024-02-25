@@ -17,11 +17,8 @@ const sendInviteToNewUser = catchAsync(async ({ user, url, communityName }) => {
 });
 
 exports.inviteMember = catchAsync(async (req, res, next) => {
-  const referer = req.headers['referer'] || req.headers['referrer'];
   const { groupId } = req.params;
   const { user: userNameOrEmail } = req.body;
-
-  console.log(req.headers);
 
   // 1) Check if userName or E-mail address was sent
   if (!userNameOrEmail)
@@ -54,7 +51,11 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
   // ) If userName does not exist return without info (privacy), send e-mail with invite for signup
   if (!user && validator.isEmail(userNameOrEmail)) {
     // Create verification URL
-    const signUpUrl = `${referer}signup/${groupId}`;
+    const signUpUrl = `${
+      process.env.NODE_ENV === 'production'
+        ? process.env.APP_DOMAIN
+        : process.env.LOCALHOST
+    }/signup/${groupId}`;
 
     console.log(signUpUrl);
 
