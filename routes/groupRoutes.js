@@ -15,7 +15,7 @@ router.use(authController.verifyJWT);
 // Route for getting all groups where user is a member from
 router
   .route('/')
-  .get(authController.restrictTo('user'), groupController.getUsersGroups);
+  .get(authController.restrictTo('admin'), groupController.getAllGroups);
 
 // Route for starting a new group
 router

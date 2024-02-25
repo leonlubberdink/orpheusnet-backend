@@ -60,6 +60,7 @@ const groupPopulateOptions = [
 ];
 
 exports.getGroup = factory.getOne(Group, groupPopulateOptions);
+exports.getAllGroups = factory.getAll(Group, groupPopulateOptions);
 
 exports.updateGroup = catchAsync(async (req, res, next) => {
   if (req.body.groupAdmins)

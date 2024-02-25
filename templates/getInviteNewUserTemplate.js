@@ -35,7 +35,6 @@ function getInviteExistingUserTemplate(url, communityName) {
         <p>Please click below to accept their invitation, create an Orpheusnet account, and join their community.</p>
         <a href="${url}" class="confirmation-link">Accept invite</a>
         <p>Alternatively you can simply grab this link and paste it into your browser: ${url}.</p>
-        <p>If you did not request this email, please ignore it.</p>
       </div>
       </body>
       </html>

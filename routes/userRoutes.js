@@ -3,12 +3,9 @@ const userController = require('../controllers/userController');
 const authController = require('../controllers/authController');
 const multerController = require('../controllers/multerController');
 const inviteController = require('../controllers/inviteController');
-const groupRouter = require('./groupRoutes');
+const groupController = require('../controllers/groupController');
 
 const router = express.Router();
-
-// router.use('/isLoggedIn', authController.isLoggedIn);
-router.use('/:userId/groups', groupRouter);
 
 router.post(
   '/signup',
@@ -29,6 +26,7 @@ router.use(authController.verifyJWT);
 
 //// Should be user route!!!!!!!
 router.route('/invites/:userId').get(inviteController.getUsersInvites);
+router.get('/:userId/groups', groupController.getUsersGroups);
 
 router.get('/me', userController.getMe, userController.getOneUser);
 router.patch('/updateMyPassword', authController.updateMyPassword);

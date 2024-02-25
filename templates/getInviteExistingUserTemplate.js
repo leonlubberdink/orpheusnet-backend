@@ -33,7 +33,6 @@ function getInviteExistingUserTemplate(communityName) {
         <h2>You got invited to join a community on Orpheusnet!</h2>
         <p>Someone invited you to join their community: <b>${communityName}</b>.</p>
         <p>Just pop over to your account and hit accept on that invite waiting for you!</p>
-        <p>If you did not request this email, please ignore it.</p>
       </div>
       </body>
       </html>
