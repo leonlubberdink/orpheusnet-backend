@@ -42,7 +42,6 @@ if (process.env.NODE_ENV === 'production') {
 // MIDDLEWARES FOR PRODUCTION ENV
 // Serving static files
 // Serve static files from these directories
-console.log(path.join(__dirname, '..', '/public_images/img/users'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/public/img', express.static(__dirname + '/public/img/'));
 app.use(

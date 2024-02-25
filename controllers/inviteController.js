@@ -12,7 +12,6 @@ const sendInviteToExistingUser = catchAsync(async ({ user, communityName }) => {
 });
 
 const sendInviteToNewUser = catchAsync(async ({ user, url, communityName }) => {
-  console.log(user, url, communityName);
   await new Email(user, url, communityName).sendInviteNewUser();
 });
 
@@ -56,8 +55,6 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
         ? process.env.APP_DOMAIN
         : process.env.LOCALHOST
     }/signup/${groupId}`;
-
-    console.log(signUpUrl);
 
     sendInviteToNewUser({
       user: { email: userNameOrEmail },

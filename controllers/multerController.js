@@ -24,8 +24,6 @@ exports.uploadGroupImage = upload.single('groupImage');
 exports.resizeUserImage = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
-  console.log(req.user);
-
   req.file.filename = `user-${
     req.body.userName || req.user.userName
   }-${Date.now()}.jpg`;
