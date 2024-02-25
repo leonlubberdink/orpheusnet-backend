@@ -76,8 +76,6 @@ exports.getGroup = catchAsync(async (req, res, next) => {
       group,
     },
   });
-
-  console.log(group);
 });
 
 exports.getAllGroups = factory.getAll(Group, groupPopulateOptions);

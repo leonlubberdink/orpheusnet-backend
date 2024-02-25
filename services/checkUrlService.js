@@ -10,8 +10,6 @@ const checkUrlService = async (oEmbedUrl, urlToCheck, platform) => {
   let res;
   let type = '';
 
-  console.log(urlToCheck);
-
   try {
     if (platform.toLowerCase() === 'soundcloud') {
       res = await fetch(`${oEmbedUrl}${urlToCheck}`);
