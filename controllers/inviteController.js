@@ -12,47 +12,16 @@ const sendInviteToExistingUser = catchAsync(async ({ user, communityName }) => {
 });
 
 const sendInviteToNewUser = catchAsync(async ({ user, url, communityName }) => {
-  console.log(user);
+  console.log(user, url, communityName);
   await new Email(user, url, communityName).sendInviteNewUser();
-});
-
-exports.respondToInvite = catchAsync(async (req, res, next) => {
-  const { hasAcceptedInvite, userId, groupId } = req.body;
-
-  // 1) Check if userName or E-mail address was sent
-  if (!hasAcceptedInvite || !userId || !groupId)
-    return next(
-      new AppError(
-        'Invalid request, please provide userId, groupId and hasAcceptedInvite value',
-        400
-      )
-    );
-
-  const invitedUser = await User.findById(userId);
-  const group = await Group.findById(groupId);
-
-  // Always remove invited user from invitedUser
-  group.invitedUsers.pull(invitedUser.email);
-  invitedUser.receivedInvites.pull({ groupId });
-
-  // If invite is accepted, add userid to members array in group and add groupid to groups array in user
-  if (hasAcceptedInvite) {
-    group.members.push(userId);
-    invitedUser.groups.push(groupId);
-  }
-
-  invitedUser.save();
-  group.save();
-
-  res.status(200).json({
-    status: 'success',
-  });
 });
 
 exports.inviteMember = catchAsync(async (req, res, next) => {
   const referer = req.headers['referer'] || req.headers['referrer'];
   const { groupId } = req.params;
   const { user: userNameOrEmail } = req.body;
+
+  console.log(req.headers);
 
   // 1) Check if userName or E-mail address was sent
   if (!userNameOrEmail)
@@ -87,6 +56,8 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
     // Create verification URL
     const signUpUrl = `${referer}signup/${groupId}`;
 
+    console.log(signUpUrl);
+
     sendInviteToNewUser({
       user: { email: userNameOrEmail },
       url: signUpUrl,
@@ -105,6 +76,39 @@ exports.inviteMember = catchAsync(async (req, res, next) => {
   }
 
   res.status(201).json({
+    status: 'success',
+  });
+});
+
+exports.respondToInvite = catchAsync(async (req, res, next) => {
+  const { hasAcceptedInvite, userId, groupId } = req.body;
+
+  // 1) Check if userName or E-mail address was sent
+  if (!hasAcceptedInvite || !userId || !groupId)
+    return next(
+      new AppError(
+        'Invalid request, please provide userId, groupId and hasAcceptedInvite value',
+        400
+      )
+    );
+
+  const invitedUser = await User.findById(userId);
+  const group = await Group.findById(groupId);
+
+  // Always remove invited user from invitedUser
+  group.invitedUsers.pull(invitedUser.email);
+  invitedUser.receivedInvites.pull({ groupId });
+
+  // If invite is accepted, add userid to members array in group and add groupid to groups array in user
+  if (hasAcceptedInvite) {
+    group.members.push(userId);
+    invitedUser.groups.push(groupId);
+  }
+
+  invitedUser.save();
+  group.save();
+
+  res.status(200).json({
     status: 'success',
   });
 });
