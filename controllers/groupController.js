@@ -59,7 +59,27 @@ const groupPopulateOptions = [
   },
 ];
 
-exports.getGroup = factory.getOne(Group, groupPopulateOptions);
+// exports.getGroup = factory.getOne(Group, groupPopulateOptions);
+exports.getGroup = catchAsync(async (req, res, next) => {
+  let query = Group.findById(req.params.id)
+    .select('-invitedUsers')
+    .populate(groupPopulateOptions);
+
+  const group = await query;
+
+  if (!group)
+    return next(new AppError(`No group found with ID '${req.params.id}'`, 404));
+
+  res.status(200).json({
+    status: 'succes',
+    data: {
+      group,
+    },
+  });
+
+  console.log(group);
+});
+
 exports.getAllGroups = factory.getAll(Group, groupPopulateOptions);
 
 exports.updateGroup = catchAsync(async (req, res, next) => {
