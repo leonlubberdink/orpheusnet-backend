@@ -2,23 +2,15 @@
 
 name: CI
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "master" branch
   push:
     branches: ['master']
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
   build:
-    # The type of runner that the job will run on
     runs-on: self-hosted
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js
@@ -29,11 +21,13 @@ jobs:
       - name: Install dependencies
         run: npm i
 
-      - name: Go to folder
-        run: cd /home/leon/projects/orpheusnet/_work/orpheusnet-backend/orpheusnet-backend
+      - name: Create symbolic link for ecosystem.config.js
+        run: ln -sf /etc/pm2configs/orpheusnet/ecosystem.config.js /home/leon/projects/orpheusnet/_work/orpheusnet-backend/orpheusnet-backend/ecosystem.config.js
 
-      - name: Restart pm2 process
-        run: pm2 restart 0
+      - name: Start or restart pm2 process with ecosystem config
+        run: pm2 start ecosystem.config.js --env production || pm2 reload ecosystem.config.js --update-env
+        working-directory: /home/leon/projects/orpheusnet/_work/orpheusnet-backend/orpheusnet-backend
 
-      - name: Save pm2 process liist
+      - name: Save pm2 process list
         run: pm2 save
+        working-directory: /home/leon/projects/orpheusnet/_work/orpheusnet-backend/orpheusnet-backend

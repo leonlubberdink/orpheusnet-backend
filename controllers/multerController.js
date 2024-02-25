@@ -24,13 +24,17 @@ exports.uploadGroupImage = upload.single('groupImage');
 exports.resizeUserImage = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
-  req.file.filename = `user-${req.body.userName}-${Date.now()}.jpg`;
+  console.log(req.user);
+
+  req.file.filename = `user-${
+    req.body.userName || req.user.userName
+  }-${Date.now()}.jpg`;
 
   await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
-    .toFile(`public/img/users/${req.file.filename}`);
+    .toFile(`../public_images/img/users/${req.file.filename}`);
 
   next();
 });
@@ -46,7 +50,7 @@ exports.resizeGroupImage = catchAsync(async (req, res, next) => {
     .resize(500, 500)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
-    .toFile(`public/img/groups/${req.file.filename}`);
+    .toFile(`../public_images/img/groups/${req.file.filename}`);
 
   next();
 });
