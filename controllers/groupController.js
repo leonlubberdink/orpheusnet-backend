@@ -61,11 +61,21 @@ const groupPopulateOptions = [
 
 // exports.getGroup = factory.getOne(Group, groupPopulateOptions);
 exports.getGroup = catchAsync(async (req, res, next) => {
+  const { id } = req.user;
+  console.log(id);
+
   let query = Group.findById(req.params.id)
     .select('-invitedUsers')
     .populate(groupPopulateOptions);
 
   const group = await query;
+
+  const foundMember = group.members.find((member) => member.id === id);
+
+  if (!foundMember)
+    return next(
+      new AppError("You don't have permission to perform this action", 403)
+    );
 
   if (!group)
     return next(new AppError(`No group found with ID '${req.params.id}'`, 404));
