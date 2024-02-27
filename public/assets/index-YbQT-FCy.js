@@ -35616,7 +35616,7 @@ const GQ = XR(HQ);
 })(A5);
 var qQ = A5.exports;
 const KQ = Jf(qQ),
-  QQ = 'https://orpheusnet.com:7998',
+  QQ = 'https://orpheusnet.com',
   $5 = `${QQ}/api/v1/`,
   Ka = Ke.create({ baseURL: $5 }),
   Ct = Ke.create({ baseURL: $5, withCredentials: !0 }),
@@ -36647,7 +36647,7 @@ function N5() {
     throw new Error('useUserContext must be used within a UserContextProvider');
   return e;
 }
-const mX = 'https://orpheusnet.com:7998',
+const mX = 'https://orpheusnet.com',
   vX = `${mX}/user-img`;
 function gX() {
   var l;
@@ -37704,7 +37704,7 @@ function H5(e) {
     ],
   })(e);
 }
-const jX = 'https://orpheusnet.com:7998',
+const jX = 'https://orpheusnet.com',
   AX = `${jX}/group-img`;
 function $X({ group: e }) {
   const { id: t, groupName: r, groupImage: n, members: o, shares: i = [] } = e,
@@ -37765,7 +37765,7 @@ function $X({ group: e }) {
     ],
   });
 }
-const IX = 'https://orpheusnet.com:7998',
+const IX = 'https://orpheusnet.com',
   MX = `${IX}/user-img`;
 function FX({ user: e, group: t }) {
   const { groupAdmins: r, shares: n } = t,
@@ -38537,7 +38537,7 @@ function YX() {
     });
   return { deleteShare: t, isLoading: r === 'pending' };
 }
-const XX = 'https://orpheusnet.com:7998',
+const XX = 'https://orpheusnet.com',
   ZX = `${XX}/user-img`;
 function JX(e) {
   const t = e.lastIndexOf(' by');
@@ -38894,7 +38894,7 @@ function aZ() {
     });
   return { deleteMe: r, isLoading: n === 'pending' };
 }
-const lZ = 'https://orpheusnet.com:7998',
+const lZ = 'https://orpheusnet.com',
   uZ = `${lZ}/user-img`;
 function cZ() {
   const { updateMe: e, isLoading: t } = iZ(),
