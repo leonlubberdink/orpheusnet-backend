@@ -29,6 +29,14 @@ exports.deleteShare = factory.deleteOne(Share);
 exports.getAllSharesInGroup = catchAsync(async (req, res, next) => {
   let filter = {};
 
+  if (!req.params.groupId || !req.user.groups.includes(req.params.groupId))
+    return next(
+      new AppError(
+        'You are not allowed to see shares from groups you are not a member from.',
+        403
+      )
+    );
+
   if (req.params.groupId) filter = { group: req.params.groupId };
 
   const shares = await Share.find(filter).populate(popOptions);
